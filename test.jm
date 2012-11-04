@@ -1,0 +1,28 @@
+
+auto primary key type = unsigned integer id;
+
+
+User{
+    string first_name;
+    string last_name;
+};
+
+
+Wheel{
+    unsigned int width;
+    unsigned int height;
+    unsigned double inner_diameter;
+};
+
+
+Car{
+    Wheel wheel_front_left;
+    Wheel wheel_front_right;
+    Wheel wheel_rear_left;
+    Wheel wheel_rear_right;
+
+    association[1,n] User owner;
+};
+
+
+
