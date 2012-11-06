@@ -3,12 +3,14 @@
 #include <bitset>
 
 #include "jet/Utf8String.h"
+#include "jet/File.h"
+
+#include "parser.h"
 
 
 using namespace std;
 using namespace jet;
-
-
+using namespace jet::modeler;
 
 
 template< class T >
@@ -21,10 +23,42 @@ void print_as_binary( T value, ostream& output_stream ){
 }
 
 
+void show_usage(){
+
+    cout << "Usage: jm <filename>" << endl;
+
+}
+
+
+
 
 int main( int argc, char** argv ){
 
 
+    if( argc < 2 ){
+        show_usage();
+        return 1;
+    }
+
+    Utf8String *filename = new Utf8String( argv[1] );
+
+    File *file = new File( *filename );
+
+    Utf8String *contents = new Utf8String;
+    *contents = file->getContents();
+
+    Parser *parser = new Parser;
+    parser->parse( *contents );
+
+
+    delete parser;
+    delete contents;
+    delete file;
+    delete filename;
+
+
+
+    /*
     Utf8String my_string( "Hello", 5 );
 
     cout << my_string << endl;
@@ -61,6 +95,12 @@ int main( int argc, char** argv ){
     cout << endl;
 
     //print_as_binary( my_string, cout );
+
+    */
+
+
+
+
 
     return 0;
 

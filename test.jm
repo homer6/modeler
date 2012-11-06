@@ -1,10 +1,10 @@
 
+
 auto primary key type = unsigned integer id;
 
-
 User{
-    string first_name;
-    string last_name;
+    string<1,128> first_name;
+    string<0,128> last_name;
 };
 
 
@@ -21,8 +21,23 @@ Car{
     Wheel wheel_rear_left;
     Wheel wheel_rear_right;
 
-    association[1,n] User owner;
+    association<1,n> User owner;
+    association<0,n> User owner;
+    association<0,3> User owner;
+    association<1,3> User owner;
+	
+	association<0,20> RadioStation available_radio_stations;
+	RadioStation currently_listening_station;
 };
 
+
+RadioStation{
+	string<1,128> name;
+	
+	(vector) association<0,n> Car cars_listening;
+	association<0,n> Car cars_listening;
+};
+
+//default association collection type is (vector)
 
 
