@@ -48,7 +48,7 @@ int main( int argc, char** argv ){
     *contents = file->getContents();
 
     Parser *parser = new Parser;
-    parser->parse( *contents );
+    parser->parse( contents );
 
 
     delete parser;

@@ -22,7 +22,10 @@ namespace modeler{
         NEW_LINE,
         SEMI_COLON,
         NAME,
-        SPACE
+        SPACE,
+        COMMA,
+        LESS_THAN,
+        GREATER_THAN
     };
 
 
@@ -46,21 +49,27 @@ namespace modeler{
 
                 switch( type ){
                     case NULL_TOKEN:
-                        return Utf8String( "Null Token", 10 );
+                        return Utf8String( "Null Token" );
                     case LEFT_BRACE:
-                        return Utf8String( "Left Brace", 10 );
+                        return Utf8String( "Left Brace" );
                     case RIGHT_BRACE:
-                        return Utf8String( "Right Token", 11 );
+                        return Utf8String( "Right Token" );
                     case NEW_LINE:
-                        return Utf8String( "New Line", 8 );
+                        return Utf8String( "New Line" );
                     case SEMI_COLON:
-                        return Utf8String( "Semicolon", 9 );
+                        return Utf8String( "Semicolon" );
                     case NAME:
-                        return Utf8String( "Name", 4 );
+                        return Utf8String( "Name" );
                     case SPACE:
-                        return Utf8String( "Space", 5 );
+                        return Utf8String( "Space" );
+                    case COMMA:
+                        return Utf8String( "Comma" );
+                    case LESS_THAN:
+                        return Utf8String( "Less Than" );
+                    case GREATER_THAN:
+                        return Utf8String( "Greater Than" );
                     default:
-                        return Utf8String( "Unknown", 7 );
+                        return Utf8String( "Unknown" );
                 }
 
             }
@@ -82,15 +91,15 @@ namespace modeler{
 
             }
 
-            void parse( Utf8String source_text ){
+            void parse( Utf8String *source_text ){
 
-                if( source_text.isEmpty() ){
+                if( source_text->isEmpty() ){
                     return;
                 }
 
                 this->resetParser();
 
-                this->source_text = source_text;
+                this->source_text = *source_text;
 
                 this->tokenize();
 
@@ -137,7 +146,11 @@ namespace modeler{
                 for( iterator = this->token_stream.begin(); iterator != this->token_stream.end(); iterator++ ){
 
                     token = *iterator;
-                    cout << token->line_character_offset << ":" << token->line_character_offset << " - Type: " << Token::getTypeDescription(token->type) << " - Contents: " << token->contents << endl;
+                    if( token->type == NAME ){
+                        cout << token->line_number << ":" << token->line_character_offset << " - " << Token::getTypeDescription(token->type) << " - Contents: " << token->contents << endl;
+                    }else{
+                        cout << token->line_number << ":" << token->line_character_offset << " - " << Token::getTypeDescription(token->type) << endl;
+                    }
 
                 }
 
@@ -155,6 +168,8 @@ namespace modeler{
                 char current_character;
 
                 for( size_t x = 0; x < number_of_characters; x++ ){
+
+                    //cout << "Line: " << line_number << " Offset: " << line_character_position << endl;
 
                     this->current_position = x;
 
@@ -185,8 +200,22 @@ namespace modeler{
                             continue;
 
                         case ' ':
-                            //ignore whitespace
                             this->addToken( new Token(SPACE, line_number, line_character_position) );
+                            line_character_position++;
+                            continue;
+
+                        case ',':
+                            this->addToken( new Token(COMMA, line_number, line_character_position) );
+                            line_character_position++;
+                            continue;
+
+                        case '<':
+                            this->addToken( new Token(LESS_THAN, line_number, line_character_position) );
+                            line_character_position++;
+                            continue;
+
+                        case '>':
+                            this->addToken( new Token(GREATER_THAN, line_number, line_character_position) );
                             line_character_position++;
                             continue;
 
@@ -199,14 +228,22 @@ namespace modeler{
                     ){
 
                         if( this->token_stream.size() == 0 ){
+
+                            //if a name starts the file
                             this->addToken( new Token(NAME, Utf8String(current_character), line_number, line_character_position) );
+
                         }else{
+
                             Token *token = this->getCurrentToken();
 
                             if( token->type == NAME ){
                                 //append it if a name token has already been started
                                 token->contents += current_character;
+                            }else{
+                                //this is a new name token following another non-name token; start a new name
+                                this->addToken( new Token(NAME, Utf8String(current_character), line_number, line_character_position) );
                             }
+
                         }
 
                     }
@@ -223,11 +260,7 @@ namespace modeler{
             void addToken( Token *token ){
 
                 this->token_stream.push_back( token );
-                if( this->token_stream.size() == 1 ){
-                    this->current_token = this->token_stream.begin();
-                }else{
-                    this->current_token++;
-                }
+                //this->current_token = this->token_stream.back();
 
             }
 
@@ -238,8 +271,7 @@ namespace modeler{
                 if( this->token_stream.size() == 0 ){
                     throw new Exception( "Tried to get a token when none exist." );
                 }
-
-                return *(this->current_token);
+                return this->token_stream.back();
 
             }
 
