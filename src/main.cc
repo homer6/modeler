@@ -66,15 +66,15 @@ int main( int argc, char** argv ){
 
     }catch( Exception *e ){
 
-        if( parser != NULL ) delete parser;
-        if( contents != NULL ) delete contents;
-        if( file != NULL ) delete file;
-        if( filename != NULL ) delete filename;
-
         red( Utf8String("[Exception] ") );
         cout << "- " << e->message << endl;
 
     }
+
+    if( parser != NULL ) delete parser;
+    if( contents != NULL ) delete contents;
+    if( file != NULL ) delete file;
+    if( filename != NULL ) delete filename;
 
 
 
