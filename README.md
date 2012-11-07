@@ -1,5 +1,14 @@
 
+Requirements
+------------
 
+sudo apt-get install cmake g++ make
+
+
+
+
+Download and Install
+--------------------
 
 git clone git://github.com/homer6/modeler.git
 cd modeler
@@ -16,5 +25,11 @@ cmake .
 make
 
 sudo ln -s `pwd`/build/jm /usr/bin/jm
+
+
+
+
+Running
+-------
 
 jm simple.jm
