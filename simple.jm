@@ -1,0 +1,14 @@
+
+
+User{
+    string first_name;
+    string last_name;
+};
+
+
+Car{
+    string make;
+    string model;
+    int factory;
+};
+

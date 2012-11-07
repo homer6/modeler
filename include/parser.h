@@ -16,10 +16,12 @@ namespace modeler{
 
 
     enum TokenType{
+        UNKNOWN,
         NULL_TOKEN,
         LEFT_BRACE,
         RIGHT_BRACE,
         NEW_LINE,
+        CARRIAGE_RETURN,
         SEMI_COLON,
         NAME,
         SPACE,
@@ -48,14 +50,18 @@ namespace modeler{
             static Utf8String getTypeDescription( TokenType type ){
 
                 switch( type ){
+                    case UNKNOWN:
+                        return Utf8String( "Unknown Token" );
                     case NULL_TOKEN:
                         return Utf8String( "Null Token" );
                     case LEFT_BRACE:
                         return Utf8String( "Left Brace" );
                     case RIGHT_BRACE:
-                        return Utf8String( "Right Token" );
+                        return Utf8String( "Right Brace" );
                     case NEW_LINE:
                         return Utf8String( "New Line" );
+                    case CARRIAGE_RETURN:
+                        return Utf8String( "Carriage Return" );
                     case SEMI_COLON:
                         return Utf8String( "Semicolon" );
                     case NAME:
@@ -103,7 +109,14 @@ namespace modeler{
 
                 this->tokenize();
 
+                this->stripWhitespaceTokens();
+                this->assertNoUnknownTokens();
+
+                this->current_token = this->token_stream.begin();
+
                 this->printTokens();
+
+                this->parseTokens();
 
             }
 
@@ -157,6 +170,46 @@ namespace modeler{
             }
 
 
+            void assertNoUnknownTokens(){
+
+                Token *token;
+                vector<Token*>::iterator iterator;
+
+                for( iterator = this->token_stream.begin(); iterator != this->token_stream.end(); iterator++ ){
+
+                    token = *iterator;
+                    if( token->type == UNKNOWN ){
+                        this->error( "Unknown token.", token );
+                    }
+
+                }
+
+            }
+
+
+            void stripWhitespaceTokens(){
+
+                Token *token;
+                vector<Token*>::iterator iterator;
+
+                vector<Token*> *new_token_stream = new vector<Token*>;
+
+                for( iterator = this->token_stream.begin(); iterator != this->token_stream.end(); iterator++ ){
+
+                    token = *iterator;
+                    if( token->type != SPACE && token->type != NEW_LINE && token->type != CARRIAGE_RETURN ){
+                        new_token_stream->push_back( token );
+                    }else{
+                        delete token;
+                    }
+
+                }
+
+                swap( this->token_stream, *new_token_stream );
+                delete new_token_stream;
+
+            }
+
 
 
             void tokenize(){
@@ -181,6 +234,11 @@ namespace modeler{
                             line_number++;
                             line_character_position = 0;
                             this->addToken( new Token(NEW_LINE, line_number, line_character_position) );
+                            line_character_position++;
+                            continue;
+
+                        case 0x0D:
+                            this->addToken( new Token(CARRIAGE_RETURN, line_number, line_character_position) );
                             line_character_position++;
                             continue;
 
@@ -224,30 +282,38 @@ namespace modeler{
                     if(
                         ( current_character >= 0x41 && current_character <= 0x5A ) ||  //upper-case alpha
                         ( current_character >= 0x61 && current_character <= 0x7A ) ||  //lower-case alpha
-                        ( current_character >= 0x30 && current_character <= 0x39 )     //numeric
+                        ( current_character >= 0x30 && current_character <= 0x39 ) ||  //numeric
+                        ( current_character == 0x5F )                                  //underscore
                     ){
 
                         if( this->token_stream.size() == 0 ){
 
                             //if a name starts the file
                             this->addToken( new Token(NAME, Utf8String(current_character), line_number, line_character_position) );
+                            line_character_position++;
+                            continue;
 
                         }else{
 
-                            Token *token = this->getCurrentToken();
+                            Token *token = this->getEndToken();
 
                             if( token->type == NAME ){
                                 //append it if a name token has already been started
                                 token->contents += current_character;
+                                line_character_position++;
+                                continue;
                             }else{
                                 //this is a new name token following another non-name token; start a new name
                                 this->addToken( new Token(NAME, Utf8String(current_character), line_number, line_character_position) );
+                                line_character_position++;
+                                continue;
                             }
 
                         }
 
                     }
 
+                    this->addToken( new Token(UNKNOWN, Utf8String(current_character), line_number, line_character_position) );
                     line_character_position++;
 
 
@@ -266,7 +332,7 @@ namespace modeler{
 
 
 
-            Token* getCurrentToken(){
+            Token* getEndToken(){
 
                 if( this->token_stream.size() == 0 ){
                     throw new Exception( "Tried to get a token when none exist." );
@@ -276,42 +342,132 @@ namespace modeler{
             }
 
 
+            Token* getCurrentToken(){
+
+                if( this->current_token == this->token_stream.end() ){
+                    throw new Exception( "getCurrentToken: End of token stream." );
+                }
+
+                return *this->current_token;
+
+            }
+
+
+            Token* getPreviousToken(){
+
+                if( this->current_token == this->token_stream.begin() ){
+                    throw new Exception( "getPreviousToken: Beginning of token stream." );
+                }
+
+                return *( this->current_token - 1 );
+
+            }
+
+
+            void advanceOneToken(){
+
+                this->current_token++;
+
+                if( this->current_token == this->token_stream.end() ){
+                    throw new Exception( "advanceOneToken: End of token stream." );
+                }
+
+            }
+
+            bool hasMoreTokens(){
+
+                if( this->current_token + 1 == this->token_stream.end() ){
+                    return false;
+                }else{
+                    return true;
+                }
+
+            }
+
+
             void error( const char error_message[] ){
 
                 cout << "Error: " << error_message << endl;
+                cout << "Line: " << this->getCurrentToken()->line_number << endl;
+                cout << "Line character offset: " << this->getCurrentToken()->line_character_offset << endl;
                 throw error_message;
 
             }
 
-            /*
+            void error( const char error_message[], Token *token ){
 
-            int accept( Token token ){
+                cout << "Error: " << error_message << endl;
+                cout << "Line: " << token->line_number << endl;
+                cout << "Line character offset: " << token->line_character_offset << endl;
+                throw error_message;
 
-                if( current_token == token ){
-                    get_token();
-                    return 1;
+            }
+
+
+            bool acceptTokenType( TokenType token_type ){
+
+                if( this->getCurrentToken()->type == token_type ){
+
+                    if( this->hasMoreTokens() ){
+                        this->advanceOneToken();
+                        return true;
+                    }
+
                 }
-                return 0;
+                return false;
 
             }
 
 
-            int expect( Token token ){
+            bool expectTokenType( TokenType token_type ){
 
-                if( accept(token) )
-                    return 1;
-                error("expect: unexpected token");
-                return 0;
+                if( this->acceptTokenType(token_type) ){
+                    return true;
+                }
+                this->error( "Expect: unexpected token" );
+                return false;
+
+            }
+
+
+
+
+            void parseTokens(){
+
+                this->model();
+
+                while( this->acceptTokenType(SEMI_COLON) ){
+                    this->model();
+                }
 
             }
 
 
-            void expression(){
+            void model(){
+
+                if( this->acceptTokenType(NAME) ){
+
+                    cout << "Model: " << this->getPreviousToken()->contents << endl;
+                    this->expectTokenType( LEFT_BRACE );
+                    this->modelProperty();
+                    while( this->acceptTokenType(SEMI_COLON) ){
+                        this->modelProperty();
+                    }
+                    this->expectTokenType( RIGHT_BRACE );
+
+                }
 
             }
 
-            */
 
+            void modelProperty(){
+
+                if( this->acceptTokenType(NAME) ){
+                    cout << "Property name: " << this->getCurrentToken()->contents << endl;
+                    this->expectTokenType(NAME);
+                }
+
+            }
 
 
             Utf8String source_text;

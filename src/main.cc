@@ -4,6 +4,7 @@
 
 #include "jet/Utf8String.h"
 #include "jet/File.h"
+#include "jet/Exception.h"
 
 #include "parser.h"
 
@@ -30,6 +31,12 @@ void show_usage(){
 }
 
 
+void red( Utf8String text ){
+
+    cout << "\033[1;31m" << text << "\033[0m";
+
+}
+
 
 
 int main( int argc, char** argv ){
@@ -40,21 +47,37 @@ int main( int argc, char** argv ){
         return 1;
     }
 
-    Utf8String *filename = new Utf8String( argv[1] );
+    Utf8String *filename = NULL;
+    File *file = NULL;
+    Utf8String *contents = NULL;
+    Parser *parser = NULL;
 
-    File *file = new File( *filename );
+    try{
 
-    Utf8String *contents = new Utf8String;
-    *contents = file->getContents();
+        filename = new Utf8String( argv[1] );
 
-    Parser *parser = new Parser;
-    parser->parse( contents );
+        file = new File( *filename );
+
+        contents = new Utf8String;
+        *contents = file->getContents();
+
+        parser = new Parser;
+        parser->parse( contents );
+
+    }catch( Exception *e ){
+
+        if( parser != NULL ) delete parser;
+        if( contents != NULL ) delete contents;
+        if( file != NULL ) delete file;
+        if( filename != NULL ) delete filename;
+
+        red( Utf8String("[Exception] ") );
+        cout << "- " << e->message << endl;
+
+    }
 
 
-    delete parser;
-    delete contents;
-    delete file;
-    delete filename;
+
 
 
 
