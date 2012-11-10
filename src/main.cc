@@ -64,6 +64,10 @@ int main( int argc, char** argv ){
         parser = new Parser;
         parser->parse( contents );
 
+        cout << endl;
+        parser->printModels();
+
+
     }catch( Exception *e ){
 
         red( Utf8String("[Exception] ") );

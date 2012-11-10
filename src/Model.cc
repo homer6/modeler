@@ -8,8 +8,11 @@ namespace jet{
 namespace modeler{
 
     using ::jet::Exception;
+    using namespace std;
 
-    Model::Model(){
+    Model::Model( Utf8String name )
+        :name(name)
+    {
 
 
     }
@@ -25,7 +28,7 @@ namespace modeler{
 
     }
 
-    Utf8String Model::getName(){
+    Utf8String Model::getName() const{
 
         return this->name;
 
@@ -48,11 +51,9 @@ namespace modeler{
 
 
 
-    ModelField* Model::getFieldByName( Utf8String const &field_name ){
+    ModelField* Model::getFieldByName( Utf8String const &field_name ) const{
 
-        ModelFieldMap::iterator it;
-
-        it = this->fields.find( field_name );
+        ModelFieldMap::const_iterator it = this->fields.find( field_name );
 
         if( it == this->fields.end() ){
             return NULL;
@@ -61,6 +62,30 @@ namespace modeler{
         return it->second;
 
     }
+
+
+    std::ostream& operator<<( std::ostream &output_stream, const Model &output_model ){
+
+        output_stream << "Model Name: " << output_model.name << endl;
+
+        ModelFieldMap::const_iterator it;
+        ModelField *model_field;
+
+        for( it = output_model.fields.begin(); it != output_model.fields.end(); it++ ){
+
+            model_field = it->second;
+
+            output_stream << *model_field << endl;
+
+        }
+
+        output_stream << endl;
+
+        return output_stream;
+
+    }
+
+
 
 
 }

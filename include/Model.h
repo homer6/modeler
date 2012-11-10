@@ -2,6 +2,7 @@
 #define ALTUMO_JET_MODELER_MODEL
 
 #include <map>
+#include <iostream>
 
 #include "jet/Utf8String.h"
 #include "jet/Exception.h"
@@ -9,36 +10,39 @@
 #include "ModelField.h"
 
 
-
 namespace jet{
 namespace modeler{
 
+    using namespace ::jet::modeler;
+
     using ::jet::Utf8String;
     using ::jet::Utf8StringComparator;
-    class ModelField;
 
-    typedef ::std::map<Utf8String,ModelField*,Utf8StringComparator> ModelFieldMap;
-    typedef ::std::pair<Utf8String,ModelField*> ModelFieldMapPair;
 
     class Model{
 
         public:
-            Model();
+            Model( Utf8String name );
             ~Model();
 
             void setName( Utf8String name );
-            Utf8String getName();
+            Utf8String getName() const;
 
 
             void addField( ModelField *model_field );
-            ModelField* getFieldByName( Utf8String const &field_name );
+            ModelField* getFieldByName( Utf8String const &field_name ) const;
 
+            friend std::ostream& operator<<( std::ostream &output_stream, const Model &output_model );
 
         protected:
             Utf8String name;
             ModelFieldMap fields;
 
     };
+
+
+    typedef ::std::map<Utf8String,Model*,Utf8StringComparator> ModelMap;
+    typedef ::std::pair<Utf8String,Model*> ModelMapPair;
 
 }
 }

@@ -14,7 +14,7 @@ set( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/build )
 
 include_directories( include )
 
-add_executable( ${MAIN_EXECUTABLE} src/main.cc src/Parser.cc src/ModelField.cc src/Model.cc )
+add_executable( ${MAIN_EXECUTABLE} src/main.cc src/Parser.cc src/ModelField.cc src/Model.cc src/Token.cc )
 target_link_libraries( ${MAIN_EXECUTABLE} ${LIBS} )
 
 if( CMAKE_COMPILER_IS_GNUCXX )
