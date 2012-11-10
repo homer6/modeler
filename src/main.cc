@@ -6,7 +6,7 @@
 #include "jet/File.h"
 #include "jet/Exception.h"
 
-#include "parser.h"
+#include "Parser.h"
 
 
 using namespace std;

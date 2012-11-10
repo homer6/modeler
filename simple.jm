@@ -12,3 +12,9 @@ Car{
     int factory;
 };
 
+Car2{
+    string hello;
+    string model;
+    int factory;
+};
+
