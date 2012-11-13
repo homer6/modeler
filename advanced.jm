@@ -1,0 +1,86 @@
+
+
+
+
+model_profile default{
+
+	auto primary key type = unsigned integer id;
+
+	serverside, clientside{
+		reader<http> 3rd_party_service;
+	};
+	
+	serverside{
+		writer<db> db_writer_public;
+		writer<db> db_writer_private;
+		reader<db> db_reader_public;
+		reader<db> db_reader_private;
+	};
+	
+	clientside{
+		reader<my_super_rest_api> local_service;
+	};
+	
+};
+
+model_profile 3rd_party_server_2{
+
+	serverside, clientside{
+		reader<http> 3rd_party_service_2;
+	};
+	
+};
+
+service<https> my_super_rest_api;
+
+
+
+User:default{
+
+    string<1,128> first_name;
+    string<0,128> last_name;
+	
+	
+};
+
+
+Wheel:default,3rd_party_server_2{
+    unsigned int width;
+    unsigned int height;
+    unsigned double inner_diameter;
+};
+
+
+Car{
+    Wheel wheel_front_left;
+    Wheel wheel_front_right;
+    Wheel wheel_rear_left;
+    Wheel wheel_rear_right;
+
+    association<1,n> User owner;
+    association<0,n> User owner;
+    association<0,3> User owner;
+    association<1,3> User owner;
+	
+	association<0,20> RadioStation available_radio_stations;
+	RadioStation currently_listening_station;
+};
+
+
+RadioStation{
+	string<1,128> name;
+	
+	(vector) association<0,n> Car cars_listening;
+	association<0,n> Car cars_listening;
+	
+	model_profile{
+		serverside, clientside{
+			reader<http> 3rd_party_service_3;
+		};
+	};
+	
+};
+
+//default association collection type is (vector)
+
+
