@@ -39,12 +39,7 @@ namespace modeler{
 
     std::ostream& operator<<( std::ostream &output_stream, const ModelField &output_model_field ){
 
-        output_stream
-            << "["
-            << output_model_field.type
-            << ":"
-            << output_model_field.name
-            << "]";
+        output_stream << output_model_field.type << " " << output_model_field.name << ";";
 
         return output_stream;
 
