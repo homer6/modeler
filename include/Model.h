@@ -32,6 +32,9 @@ namespace modeler{
             void addField( ModelField *model_field );
             ModelField* getFieldByName( Utf8String const &field_name ) const;
 
+            std::ostream& writeHeaderFile( std::ostream &output_stream ) const;
+            std::ostream& writeImplementationFile( std::ostream &output_stream ) const;
+
             friend std::ostream& operator<<( std::ostream &output_stream, const Model &output_model );
 
         protected:

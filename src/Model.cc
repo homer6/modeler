@@ -64,17 +64,16 @@ namespace modeler{
     }
 
 
-    std::ostream& operator<<( std::ostream &output_stream, const Model &output_model ){
+    std::ostream& Model::writeHeaderFile( std::ostream &output_stream ) const{
 
         ModelFieldMap::const_iterator it;
         ModelField *model_field;
 
-
         //Header file
 
             output_stream <<
-            "#ifndef INCLUDE_GUARD_" << output_model.name << endl <<
-            "#define INCLUDE_GUARD_" << output_model.name << endl <<
+            "#ifndef INCLUDE_GUARD_" << this->name << endl <<
+            "#define INCLUDE_GUARD_" << this->name << endl <<
             endl <<
             "#include \"jet/Utf8String.h\"" << endl <<
             "#include \"jet/Exception.h\"" << endl <<
@@ -83,14 +82,14 @@ namespace modeler{
             "namespace jet{" << endl <<
             endl <<
             endl <<
-            "    class " << output_model.name << "{" << endl <<
+            "    class " << this->name << "{" << endl <<
             endl <<
             "        public:" << endl <<
-            "            " << output_model.name << "();" << endl <<
-            "            ~" << output_model.name << "();" << endl << endl;
+            "            " << this->name << "();" << endl <<
+            "            ~" << this->name << "();" << endl << endl;
 
 
-            for( it = output_model.fields.begin(); it != output_model.fields.end(); it++ ){
+            for( it = this->fields.begin(); it != this->fields.end(); it++ ){
 
                 model_field = it->second;
 
@@ -104,7 +103,7 @@ namespace modeler{
             output_stream << endl <<
             "        protected:"  << endl ;
 
-                    for( it = output_model.fields.begin(); it != output_model.fields.end(); it++ ){
+                    for( it = this->fields.begin(); it != this->fields.end(); it++ ){
 
                         model_field = it->second;
 
@@ -118,27 +117,33 @@ namespace modeler{
             endl <<
             endl <<
             "}" << endl <<
-            "#endif //INCLUDE_GUARD_" << output_model.name << endl;
+            "#endif //INCLUDE_GUARD_" << this->name << endl;
+
+        return output_stream;
+
+    }
 
 
+    std::ostream& Model::writeImplementationFile( std::ostream &output_stream ) const{
 
-
+        ModelFieldMap::const_iterator it;
+        ModelField *model_field;
 
         //Implementation File
 
             output_stream << ""
-            "#include \"" << output_model.name << ".h\"" << endl <<
+            "#include \"" << this->name << ".h\"" << endl <<
             endl <<
             endl <<
             "namespace jet{" << endl <<
             endl <<
             endl;
 
-            for( it = output_model.fields.begin(); it != output_model.fields.end(); it++ ){
+            for( it = this->fields.begin(); it != this->fields.end(); it++ ){
 
                 model_field = it->second;
 
-                output_stream << "    void " << output_model.name << "::set" << model_field->getName().toCamelCase() << "( " << model_field->getType() << " " << model_field->getName() << " ){" << endl;
+                output_stream << "    void " << this->name << "::set" << model_field->getName().toCamelCase() << "( " << model_field->getType() << " " << model_field->getName() << " ){" << endl;
                 output_stream << endl;
                 output_stream << "        this->" << model_field->getName() << " = " << model_field->getName() << ";" << endl;
                 output_stream << endl;
@@ -147,7 +152,7 @@ namespace modeler{
                 output_stream << endl;
                 output_stream << endl;
 
-                output_stream << "    " << model_field->getType() << " " << output_model.name << "::get" << model_field->getName().toCamelCase() << "(){" << endl;
+                output_stream << "    " << model_field->getType() << " " << this->name << "::get" << model_field->getName().toCamelCase() << "(){" << endl;
                 output_stream << endl;
                 output_stream << "        return this->" << model_field->getName() << ";" << endl;
                 output_stream << endl;
@@ -162,6 +167,15 @@ namespace modeler{
             "}" << endl <<
             endl;
 
+        return output_stream;
+
+    }
+
+
+
+    std::ostream& operator<<( std::ostream &output_stream, const Model &output_model ){
+
+        output_stream << output_model.name << endl;
 
         return output_stream;
 

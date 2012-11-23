@@ -9,6 +9,7 @@
 #include "Model.h"
 
 #include <vector>
+#include <fstream>
 
 
 namespace jet{
@@ -29,6 +30,7 @@ namespace modeler{
             void parse( Utf8String *source_text );
 
             void printModels();
+            void writeModelFiles();
 
 
         protected:

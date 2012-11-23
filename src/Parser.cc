@@ -410,6 +410,34 @@ namespace modeler{
     }
 
 
+    void Parser::writeModelFiles(){
+
+        Model *model;
+        ModelMap::iterator iterator;
+
+
+        for( iterator = this->models.begin(); iterator != this->models.end(); iterator++ ){
+
+            model = iterator->second;
+
+            fstream header_file, implementation_file;
+
+            Utf8String header_filename( model->getName() + Utf8String(".h") );
+            Utf8String implementation_filename( model->getName() + Utf8String(".cc") );
+
+            header_file.open( header_filename.getCString(), fstream::out );
+            implementation_file.open( implementation_filename.getCString(), fstream::out );
+
+            model->writeHeaderFile( header_file );
+            model->writeImplementationFile( implementation_file );
+
+            header_file.close();
+            implementation_file.close();
+
+        }
+
+    }
+
 
     void Parser::parseTokens(){
 
