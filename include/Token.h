@@ -24,6 +24,7 @@ namespace modeler{
         SEMI_COLON,
         NAME,
         SPACE,
+        TAB,
         COMMA,
         LESS_THAN,
         GREATER_THAN
@@ -67,6 +68,8 @@ namespace modeler{
                         return Utf8String( "Name" );
                     case SPACE:
                         return Utf8String( "Space" );
+                    case TAB:
+                        return Utf8String( "Tab" );
                     case COMMA:
                         return Utf8String( "Comma" );
                     case LESS_THAN:

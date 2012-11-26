@@ -128,7 +128,7 @@ namespace modeler{
         for( iterator = this->token_stream.begin(); iterator != this->token_stream.end(); iterator++ ){
 
             token = *iterator;
-            if( token->type != SPACE && token->type != NEW_LINE && token->type != CARRIAGE_RETURN ){
+            if( token->type != SPACE && token->type != NEW_LINE && token->type != CARRIAGE_RETURN && token->type != TAB ){
                 new_token_stream->push_back( token );
             }else{
                 delete token;
@@ -190,6 +190,11 @@ namespace modeler{
 
                 case ' ':
                     this->addToken( new Token(SPACE, line_number, line_character_position) );
+                    line_character_position++;
+                    continue;
+
+                case '\t':
+                    this->addToken( new Token(TAB, line_number, line_character_position) );
                     line_character_position++;
                     continue;
 
