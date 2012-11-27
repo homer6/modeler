@@ -340,32 +340,103 @@ namespace modeler{
 
     std::ostream& Model::writeBaseCollectionFile( std::ostream &output_stream ) const{
 
-        //ModelFieldMap::const_iterator it;
-        //ModelField *model_field;
-        //bool is_user_type;
-
-        output_stream << endl << endl << endl <<
+        output_stream <<
+        endl <<
+        "import collections" << endl <<
         endl <<
         "from lxml.etree import XML, tostring, parse, Element, XMLParser" << endl <<
         "from fd.model.xml_model import XmlModel" << endl <<
-
-        "class Base" << this->name << "Set( set, XmlModel ):" << endl <<
         endl <<
-        "    def __init__( self, xml_element = None, filename = None, xml_string = None, existing_set = set() ):" << endl <<
+        "from fd.model." << this->name << " import " << this->name << endl <<
+        endl <<
+        endl <<
+        "class Base" << this->name << "Set( collections.MutableSet, XmlModel ):" << endl <<
+        endl <<
+        endl <<
+        "    def __init__( self, xml_element = None, filename = None, xml_string = None, initvalue = () ):" << endl <<
         endl <<
         "        XmlModel.__init__( self, xml_element = xml_element, filename = filename, xml_string = xml_string )" << endl <<
-        "        set.__init__( self, existing_set )" << endl <<
-
         endl <<
-        "        if self.element is None:" <<
+        "        self.object_set = set()" << endl <<
+        "        self.name_set = set()" << endl <<
         endl <<
-        "            self.element = self.create_default_element()" << endl;
-
-        output_stream << endl << endl <<
+        "        for value in initvalue:" << endl <<
+        "            self.add( value )" << endl <<
+        endl <<
+        "        if self.element is None:" << endl <<
+        "            self.element = self.create_default_element()" << endl <<
+        endl <<
+        endl <<
+        endl <<
         "    def create_default_element( self ):" << endl <<
         endl <<
         "        element = Element( '" << this->name.toLowerCase() << "s' )" << endl <<
         "        return element" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    def add( self, item ):" << endl <<
+        endl <<
+        "        if not isinstance( item, " << this->name << " ):" << endl <<
+        "            raise Exception( '" << this->name << "Set.add expects a " << this->name << ".' )" << endl <<
+        endl <<
+        "        item_name = item.name" << endl <<
+        "        if item_name is None:" << endl <<
+        "            raise Exception( '" << this->name << " must have a name.' )" << endl <<
+        endl <<
+        "        if item_name in self.name_set:" << endl <<
+        "            raise Exception( 'This " << this->name << " is already in this set.' )" << endl <<
+        endl <<
+        "        self.object_set.add( item )" << endl <<
+        "        self.name_set.add( item_name )" << endl <<
+        "        self.element.append( item.element )" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    def discard( self, item ):" << endl <<
+        endl <<
+        "        if not isinstance( item, " << this->name << " ):" << endl <<
+        "            raise Exception( '" << this->name << "Set.discard expects a " << this->name << ".' )" << endl <<
+        endl <<
+        "        item_name = item.name" << endl <<
+        "        if item_name is None:" << endl <<
+        "            raise Exception( '" << this->name << " must have a name.' )" << endl <<
+        endl <<
+        "        if item_name in self.name_set:" << endl <<
+        "            self.element.remove( item.element )" << endl <<
+        "            self.object_set.discard( item )" << endl <<
+        "            self.name_set.discard( item_name )" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    def __iter__( self ):" << endl <<
+        endl <<
+        "        return iter( self.object_set )" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    def __len__( self ):" << endl <<
+        endl <<
+        "        return len( self.object_set )" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    def __contains__( self, item ):" << endl <<
+        endl <<
+        "        try:" << endl <<
+        endl <<
+        "            if not isinstance( item, " << this->name << " ):" << endl <<
+        "                raise Exception( '" << this->name << "Set.__contains__ expects a " << this->name << ".' )" << endl <<
+        endl <<
+        "            item_name = item.name" << endl <<
+        "            if item_name is None:" << endl <<
+        "                raise Exception( '" << this->name << " must have a name.' )" << endl <<
+        endl <<
+        "            return item_name in self.name_set" << endl <<
+        endl <<
+        "        except AttributeError:" << endl <<
+        endl <<
+        "            return False" << endl <<
         endl;
 
         return output_stream;
