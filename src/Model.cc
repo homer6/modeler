@@ -70,13 +70,28 @@ namespace modeler{
 
         ModelFieldMap::const_iterator it;
         ModelField *model_field;
+        bool is_user_type;
 
         output_stream << endl << endl << endl <<
         endl <<
         "from lxml.etree import XML, tostring, parse, Element, XMLParser" << endl <<
-        "from fd.util.xml import xml_element_from_file, xml_element_to_string" << endl <<
-        "from fd.model.xml_model import XmlModel" << endl <<
-        endl <<
+        "from fd.model.xml_model import XmlModel" << endl;
+
+        for( it = this->fields.begin(); it != this->fields.end(); it++ ){
+
+            model_field = it->second;
+            is_user_type = model_field->isUserType();
+
+            if( is_user_type ){
+
+                output_stream << "from fd.model." << model_field->getType() << " import " << model_field->getType() << endl;
+
+            }
+
+        }
+
+
+        output_stream << endl <<
         "class Base" << this->name << "( XmlModel ):" << endl <<
         endl <<
         endl <<
@@ -86,14 +101,16 @@ namespace modeler{
         endl <<
         "        if self.element is None:" <<
         endl <<
-        "            self.element = Element( '" << this->name.toLowerCase() << "' )" << endl;
+        "            self.element = self.create_default_element()" << endl;
 
-        for( it = this->fields.begin(); it != this->fields.end(); it++ ){
 
-            model_field = it->second;
-            output_stream << "            self." << model_field->getName() << " = ''" << endl;
+        output_stream << endl << endl <<
+        "    def create_default_element( self ):" << endl <<
+        endl <<
+        "        element = Element( '" << this->name.toLowerCase() << "' )" << endl <<
+        "        return element" << endl;
 
-        }
+
 
         output_stream << endl << endl << endl;
 
@@ -116,7 +133,7 @@ namespace modeler{
                 "    def " << model_field->getName() << "( self ):" << endl <<
                 "        \"\"\"" << endl <<
                 "        Gets the " << model_field->getName() << " attribute on this " << this->name << ".  Returns None if the attribute doesn't exist." << endl <<
-                "        @return {" << model_field->getType() << "}" << endl <<
+                "        @return {string}" << endl <<
                 "        \"\"\"" << endl <<
                 endl <<
                 "        return self.get_attribute_value( '" << model_field->getName() << "' )" << endl <<
@@ -129,7 +146,7 @@ namespace modeler{
                 "    def " << model_field->getName() << "( self, " << model_field->getName() << " ):" << endl <<
                 "        \"\"\"" << endl <<
                 "        Sets the " << model_field->getName() << " attribute on this " << this->name << "." << endl <<
-                "        @param {" << model_field->getType() << "} " << model_field->getName() << endl <<
+                "        @param {string} " << model_field->getName() << endl <<
                 "        \"\"\"" << endl <<
                 endl <<
                 "        self.set_attribute_value( '" << model_field->getName() << "', " << model_field->getName() << " )" << endl <<
@@ -211,6 +228,8 @@ namespace modeler{
 
         // the getter, setter and deleter for each of the fields
 
+
+
             for( it = this->fields.begin(); it != this->fields.end(); it++ ){
 
                 model_field = it->second;
@@ -218,6 +237,8 @@ namespace modeler{
                 if( model_field->getType() == "attribute" || model_field->getType() == "text_body" ){
                     continue;
                 }
+
+                is_user_type = model_field->isUserType();
 
                 output_stream <<
 
@@ -227,11 +248,26 @@ namespace modeler{
                 "        Gets the " << model_field->getName() << " subelement on this " << this->name << ".  Returns None if the subelement doesn't exist." << endl <<
                 "        @return {" << model_field->getType() << "}" << endl <<
                 "        \"\"\"" << endl <<
+                endl;
+
+                if( is_user_type ){
+
+                    output_stream << "        return " << model_field->getType() << "( xml_element = self.get_or_create_tag_by_name('" << model_field->getName() << "') )" << endl;
+
+                }else{
+
+                    output_stream << "        return self.get_tag_value( '" << model_field->getName() << "' )" << endl;
+
+                }
+
+                output_stream <<
                 endl <<
-                "        return self.get_tag_value( '" << model_field->getName() << "' )" << endl <<
                 endl <<
                 endl <<
-                endl <<
+
+
+
+
 
 
                 "    @" << model_field->getName() << ".setter" << endl <<
@@ -240,8 +276,29 @@ namespace modeler{
                 "        Sets the " << model_field->getName() << " subelement on this " << this->name << "." << endl <<
                 "        @param {" << model_field->getType() << "} " << model_field->getName() << endl <<
                 "        \"\"\"" << endl <<
-                endl <<
-                "        self.set_tag_value( '" << model_field->getName() << "', " << model_field->getName() << " )" << endl <<
+                endl;
+
+                if( is_user_type ){
+
+                    output_stream << "        tag = self.get_tag_by_name( '" << model_field->getName() << "' )" << endl;
+
+                    output_stream << "        if isinstance( " << model_field->getName() << ", XmlModel ):" << endl << endl;
+                    output_stream << "            tag = " << model_field->getName() << ".element" << endl << endl;
+
+                    output_stream << "        elif isinstance( " << model_field->getName() << ", str ):" << endl << endl;
+                    output_stream << "            xml_model = " << model_field->getType() << "( xml_string = " << model_field->getName() << " )" << endl;
+                    output_stream << "            tag = xml_model.element" << endl << endl;
+
+                    output_stream << "        else:" << endl << endl;
+                    output_stream << "            raise Exception( 'Unexpected type for " << this->name << "." << model_field->getName() << "' )" << endl;
+
+                }else{
+
+                    output_stream << "        self.set_tag_value( '" << model_field->getName() << "', " << model_field->getName() << " )" << endl;
+
+                }
+
+                output_stream <<
                 endl <<
                 endl <<
                 endl <<
@@ -268,9 +325,6 @@ namespace modeler{
 
     std::ostream& Model::writeModelFile( std::ostream &output_stream ) const{
 
-        //ModelFieldMap::const_iterator it;
-        //ModelField *model_field;
-
         output_stream << endl << endl << endl <<
         endl <<
         "from base.Base" << this->name << " import Base" << this->name << endl <<
@@ -288,9 +342,31 @@ namespace modeler{
 
         //ModelFieldMap::const_iterator it;
         //ModelField *model_field;
+        //bool is_user_type;
 
+        output_stream << endl << endl << endl <<
+        endl <<
+        "from lxml.etree import XML, tostring, parse, Element, XMLParser" << endl <<
+        "from fd.model.xml_model import XmlModel" << endl <<
 
-        output_stream << "BaseCollectionFile contents" << endl;
+        "class Base" << this->name << "Set( set, XmlModel ):" << endl <<
+        endl <<
+        "    def __init__( self, xml_element = None, filename = None, xml_string = None, existing_set = set() ):" << endl <<
+        endl <<
+        "        XmlModel.__init__( self, xml_element = xml_element, filename = filename, xml_string = xml_string )" << endl <<
+        "        set.__init__( self, existing_set )" << endl <<
+
+        endl <<
+        "        if self.element is None:" <<
+        endl <<
+        "            self.element = self.create_default_element()" << endl;
+
+        output_stream << endl << endl <<
+        "    def create_default_element( self ):" << endl <<
+        endl <<
+        "        element = Element( '" << this->name.toLowerCase() << "s' )" << endl <<
+        "        return element" << endl <<
+        endl;
 
         return output_stream;
 
@@ -299,11 +375,13 @@ namespace modeler{
 
     std::ostream& Model::writeCollectionFile( std::ostream &output_stream ) const{
 
-        //ModelFieldMap::const_iterator it;
-        //ModelField *model_field;
-
-
-        output_stream << "CollectionFile contents" << endl;
+        output_stream << endl << endl << endl <<
+        endl <<
+        "from base.Base" << this->name << "Set import Base" << this->name << "Set" << endl <<
+        endl <<
+        "class " << this->name << "Set( Base" << this->name << "Set ):" << endl <<
+        endl <<
+        "    pass" << endl;
 
         return output_stream;
 

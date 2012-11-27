@@ -28,6 +28,8 @@ namespace modeler{
             void setType( Utf8String type );
             Utf8String getType() const;
 
+            bool isUserType() const;
+
             friend std::ostream& operator<<( std::ostream &output_stream, const ModelField &output_model_field );
 
         protected:

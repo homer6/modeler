@@ -36,6 +36,21 @@ namespace modeler{
 
     }
 
+    bool ModelField::isUserType() const{
+
+        char character = this->type.getAsciiCharacterAtIndex( 0 );
+
+        if( character >= 0x41 && character <= 0x5A ){  //upper-case
+
+            return true;
+
+        }
+
+        return false;
+
+    }
+
+
 
     std::ostream& operator<<( std::ostream &output_stream, const ModelField &output_model_field ){
 
