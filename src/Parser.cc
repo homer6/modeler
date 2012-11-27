@@ -405,17 +405,12 @@ namespace modeler{
         Model *model;
         ModelMap::iterator model_map_iterator;
 
-        cout << this->models.size() << endl;
-
         for( model_map_iterator = this->models.begin(); model_map_iterator != this->models.end(); model_map_iterator++ ){
 
-            cout << "what" << endl;
-            //model = model_map_iterator->second;
-            //cout << *model;
+            model = model_map_iterator->second;
+            cout << *model;
 
         }
-
-        cout << this->models.size() << endl;
 
     }
 

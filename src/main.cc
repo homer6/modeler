@@ -67,7 +67,7 @@ int main( int argc, char** argv ){
         cout << endl;
 
         parser->printModels();
-        //parser->writeModelFiles();
+        parser->writeModelFiles();
 
     }catch( Exception *e ){
 

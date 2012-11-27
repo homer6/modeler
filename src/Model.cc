@@ -273,7 +273,7 @@ namespace modeler{
 
         output_stream << endl << endl << endl <<
         endl <<
-        "from Base" << this->name << " import Base" << this->name << endl <<
+        "from base.Base" << this->name << " import Base" << this->name << endl <<
         endl <<
         "class " << this->name << "( Base" << this->name << " ):" << endl <<
         endl <<
@@ -313,7 +313,6 @@ namespace modeler{
 
     std::ostream& operator<<( std::ostream &output_stream, const Model &output_model ){
 
-        /*
         output_stream << output_model.name << "{" << endl;
         ModelFieldMap::const_iterator it;
         ModelField *model_field;
@@ -326,13 +325,6 @@ namespace modeler{
         }
 
         output_stream << "};" << endl << endl;
-
-        return output_stream;
-
-        */
-        cout << "hello" << endl;
-
-
 
         return output_stream;
 
