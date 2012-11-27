@@ -1,20 +1,25 @@
 
 
-User{
-    string first_name;
-    string last_name;
+One{
+	string title;
+	string description;
+	string preview;
+};
+
+Two{
+	string title;
+	string description;
+};
+
+Three{
+	string title;
+	string description;
+	string preview;
 };
 
 
-Car{
-    string make;
-    string model;
-    int factory;
+Four{
+	string title;
+	string description;
+	string preview;
 };
-
-Car2{
-    string hello;
-    string model;
-    int factory;
-};
-

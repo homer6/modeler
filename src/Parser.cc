@@ -403,14 +403,19 @@ namespace modeler{
     void Parser::printModels(){
 
         Model *model;
-        ModelMap::iterator iterator;
+        ModelMap::iterator model_map_iterator;
 
-        for( iterator = this->models.begin(); iterator != this->models.end(); iterator++ ){
+        cout << this->models.size() << endl;
 
-            model = iterator->second;
-            cout << *model;
+        for( model_map_iterator = this->models.begin(); model_map_iterator != this->models.end(); model_map_iterator++ ){
+
+            cout << "what" << endl;
+            //model = model_map_iterator->second;
+            //cout << *model;
 
         }
+
+        cout << this->models.size() << endl;
 
     }
 
@@ -420,24 +425,42 @@ namespace modeler{
         Model *model;
         ModelMap::iterator iterator;
 
+        Utf8String *base_model_filename;
+        Utf8String *model_filename;
+        Utf8String *base_collection_filename;
+        Utf8String *collection_filename;
+
 
         for( iterator = this->models.begin(); iterator != this->models.end(); iterator++ ){
 
             model = iterator->second;
 
-            fstream header_file, implementation_file;
+            fstream base_model_file, model_file, base_collection_file, collection_file;
 
-            Utf8String header_filename( model->getName() + Utf8String(".h") );
-            Utf8String implementation_filename( model->getName() + Utf8String(".cc") );
+            base_model_filename = new Utf8String( Utf8String("Base") + model->getName() + Utf8String(".py") );
+            model_filename = new Utf8String( model->getName() + Utf8String(".py") );
+            base_collection_filename = new Utf8String( Utf8String("Base") + model->getName() + Utf8String("Set.py") );
+            collection_filename = new Utf8String( model->getName() + Utf8String("Set.py") );
 
-            header_file.open( header_filename.getCString(), fstream::out );
-            implementation_file.open( implementation_filename.getCString(), fstream::out );
+            base_model_file.open( base_model_filename->getCString(), fstream::out );
+            model_file.open( model_filename->getCString(), fstream::out );
+            base_collection_file.open( base_collection_filename->getCString(), fstream::out );
+            collection_file.open( collection_filename->getCString(), fstream::out );
 
-            model->writeHeaderFile( header_file );
-            model->writeImplementationFile( implementation_file );
+            model->writeBaseModelFile( base_model_file );
+            model->writeModelFile( model_file );
+            model->writeBaseCollectionFile( base_collection_file );
+            model->writeCollectionFile( collection_file );
 
-            header_file.close();
-            implementation_file.close();
+            base_model_file.close();
+            model_file.close();
+            base_collection_file.close();
+            collection_file.close();
+
+            delete base_model_filename;
+            delete model_filename;
+            delete base_collection_filename;
+            delete collection_filename;
 
         }
 
