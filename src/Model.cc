@@ -98,20 +98,6 @@ namespace modeler{
         "from lxml.etree import XML, tostring, parse, Element, XMLParser" << endl <<
         "from fd.model.xml_model import XmlModel" << endl;
 
-        for( it = this->fields.begin(); it != this->fields.end(); it++ ){
-
-            model_field = it->second;
-            is_user_type = model_field->isUserType();
-
-            if( is_user_type ){
-
-                output_stream << "from fd.model." << model_field->getType() << " import " << model_field->getType() << endl;
-
-            }
-
-        }
-
-
         output_stream << endl <<
         "class Base" << this->name << "( XmlModel ):" << endl <<
         endl <<
@@ -187,9 +173,26 @@ namespace modeler{
                 endl <<
                 endl;
 
-            }
 
-            it = this->fields.begin();
+                //other methods for models with the "name" attribute
+                if( model_field->getName() != "name" ){
+                    continue;
+                }
+
+                output_stream <<
+
+                "    def __hash__( self ):" << endl <<
+                "        \"\"\"" << endl <<
+                "        Determines a hash integer based on the name field so that this model can be placed in a set." << endl <<
+                "        @return {integer}" << endl <<
+                "        \"\"\"" << endl <<
+                endl <<
+                "        return hash( self.name )" << endl <<
+                endl <<
+                endl <<
+                endl;
+
+            }
 
 
         // the getter, setter and deleter for each of the text_body (there should only be one though (with a name of "text"), if any)
@@ -210,7 +213,7 @@ namespace modeler{
                 "    def " << model_field->getName() << "( self ):" << endl <<
                 "        \"\"\"" << endl <<
                 "        Gets the " << model_field->getName() << " text body on this " << this->name << ".  Returns None if the text body doesn't exist." << endl <<
-                "        @return {" << model_field->getType() << "}" << endl <<
+                "        @return {str}" << endl <<
                 "        \"\"\"" << endl <<
                 endl <<
                 "        return self.element.text" << endl <<
@@ -223,7 +226,7 @@ namespace modeler{
                 "    def " << model_field->getName() << "( self, " << model_field->getName() << " ):" << endl <<
                 "        \"\"\"" << endl <<
                 "        Sets the " << model_field->getName() << " text body on this " << this->name << "." << endl <<
-                "        @param {" << model_field->getType() << "} " << model_field->getName() << endl <<
+                "        @param {str} " << model_field->getName() << endl <<
                 "        \"\"\"" << endl <<
                 endl <<
                 "        self.element.text = " << model_field->getName() << endl <<
@@ -245,7 +248,6 @@ namespace modeler{
 
             }
 
-            it = this->fields.begin();
 
         // the getter, setter and deleter for each of the fields
 
@@ -271,8 +273,11 @@ namespace modeler{
                 "        \"\"\"" << endl <<
                 endl;
 
+                is_user_type = model_field->isUserType();
+
                 if( is_user_type ){
 
+                    output_stream << "        from fd.model." << model_field->getType() << " import " << model_field->getType() << endl;
                     output_stream << "        return " << model_field->getType() << "( xml_element = self.get_or_create_tag_by_name('" << model_field->getName() << "') )" << endl;
 
                 }else{
@@ -301,6 +306,7 @@ namespace modeler{
 
                 if( is_user_type ){
 
+                    output_stream << "        from fd.model." << model_field->getType() << " import " << model_field->getType() << endl;
                     output_stream << "        tag = self.get_tag_by_name( '" << model_field->getName() << "' )" << endl;
 
                     output_stream << "        if isinstance( " << model_field->getName() << ", XmlModel ):" << endl << endl;
@@ -361,14 +367,16 @@ namespace modeler{
 
     std::ostream& Model::writeBaseSetFile( std::ostream &output_stream ) const{
 
+        ModelFieldMap::const_iterator it;
+        ModelField *model_field;
+        bool is_user_type;
+
         output_stream <<
         endl <<
         "import collections" << endl <<
         endl <<
         "from lxml.etree import XML, tostring, parse, Element, XMLParser" << endl <<
         "from fd.model.xml_model import XmlModel" << endl <<
-        endl <<
-        "from fd.model." << this->name << " import " << this->name << endl <<
         endl <<
         endl <<
         "class Base" << this->name << "Set( collections.MutableSet, XmlModel ):" << endl <<
@@ -393,6 +401,8 @@ namespace modeler{
         endl <<
         "    def reindex( self ):" << endl <<
         endl <<
+        "        from fd.model." << this->name << " import " << this->name << endl <<
+        endl <<
         "        for item_element in self.element.iterchildren():" << endl <<
         "            item = " << this->name << "( xml_element = item_element )" << endl <<
         "            self.object_set.add( item )" << endl <<
@@ -410,6 +420,8 @@ namespace modeler{
         endl <<
         endl <<
         "    def add( self, item ):" << endl <<
+        endl <<
+        "        from fd.model." << this->name << " import " << this->name << endl <<
         endl <<
         "        if not isinstance( item, " << this->name << " ):" << endl <<
         "            raise Exception( '" << this->name << "Set.add expects a " << this->name << ".' )" << endl <<
@@ -442,6 +454,8 @@ namespace modeler{
         endl <<
         endl <<
         "    def discard( self, item ):" << endl <<
+        endl <<
+        "        from fd.model." << this->name << " import " << this->name << endl <<
         endl <<
         "        if not isinstance( item, " << this->name << " ):" << endl <<
         "            raise Exception( '" << this->name << "Set.discard expects a " << this->name << ".' )" << endl <<
@@ -485,6 +499,8 @@ namespace modeler{
         "            if isinstance( item, str ):" << endl <<
         "                return item in self.name_set" << endl <<
         endl <<
+        "            from fd.model." << this->name << " import " << this->name << endl <<
+        endl <<
         "            if not isinstance( item, " << this->name << " ):" << endl <<
         "                raise Exception( '" << this->name << "Set.__contains__ expects a " << this->name << ".' )" << endl <<
         endl <<
@@ -497,7 +513,51 @@ namespace modeler{
         "        except AttributeError:" << endl <<
         endl <<
         "            return False" << endl <<
+        endl <<
+        endl <<
         endl;
+
+
+
+        // all of the find_by methods for each of the fields except "name"
+
+        for( it = this->fields.begin(); it != this->fields.end(); it++ ){
+
+            model_field = it->second;
+
+            if( model_field->getType() == "attribute" && model_field->getName() == "name" ){
+                //skip the name field
+                continue;
+            }
+
+            //find_by methods don't make sense for user types
+                is_user_type = model_field->isUserType();
+                if( is_user_type ){
+                    continue;
+                }
+
+
+            output_stream <<
+
+            "    def find_by_" << model_field->getName() << "( self, " << model_field->getName() << " ):" << endl <<
+            "        \"\"\"" << endl <<
+            "        Returns a list of " << this->getName() << " models objects from this set.  Returns an empty list if none were found." << endl <<
+            "        @return {list}" << endl <<
+            "        \"\"\"" << endl <<
+            endl <<
+            "        found = list()" << endl <<
+            "        for item in self.object_set:" << endl <<
+            "            if item." << model_field->getName() << " == " << model_field->getName() << ":" << endl <<
+            "                found.append( item )" << endl <<
+            endl <<
+            "        return found" << endl <<
+            endl <<
+            endl <<
+            endl;
+
+        }
+
+
 
         return output_stream;
 
@@ -520,6 +580,10 @@ namespace modeler{
 
 
     std::ostream& Model::writeBaseListFile( std::ostream &output_stream ) const{
+
+        ModelFieldMap::const_iterator it;
+        ModelField *model_field;
+        bool is_user_type;
 
         output_stream <<
         endl <<
@@ -582,7 +646,48 @@ namespace modeler{
         endl <<
         "        return len( self.object_list )" << endl <<
         endl <<
+        endl <<
         endl;
+
+
+        // all of the find_by methods for each of the fields except "name"
+
+        for( it = this->fields.begin(); it != this->fields.end(); it++ ){
+
+            model_field = it->second;
+
+            if( model_field->getType() == "attribute" && model_field->getName() == "name" ){
+                //skip the name field
+                continue;
+            }
+
+            //find_by methods don't make sense for user types
+                is_user_type = model_field->isUserType();
+                if( is_user_type ){
+                    continue;
+                }
+
+            output_stream <<
+
+            "    def find_by_" << model_field->getName() << "( self, " << model_field->getName() << " ):" << endl <<
+            "        \"\"\"" << endl <<
+            "        Returns a list of " << this->getName() << " models objects from this list.  Returns an empty list if none were found." << endl <<
+            "        @return {list}" << endl <<
+            "        \"\"\"" << endl <<
+            endl <<
+            "        found = list()" << endl <<
+            "        for item in self.object_list:" << endl <<
+            "            if item." << model_field->getName() << " == " << model_field->getName() << ":" << endl <<
+            "                found.append( item )" << endl <<
+            endl <<
+            "        return found" << endl <<
+            endl <<
+            endl <<
+            endl;
+
+        }
+
+
 
         return output_stream;
 
