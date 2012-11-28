@@ -607,6 +607,20 @@ namespace modeler{
         endl <<
         "        if self.element is None:" << endl <<
         "            self.element = self.create_default_element()" << endl <<
+        "        else:" << endl <<
+        "            self.reindex()" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    def reindex( self ):" << endl <<
+        endl <<
+        "        from fd.model." << this->name << " import " << this->name << endl <<
+        endl <<
+        "        for item_element in self.element.iterchildren():" << endl <<
+        "            item = " << this->name << "( xml_element = item_element )" << endl <<
+        "            self.object_list.append( item )" << endl <<
+        "            if hasattr( item, 'reindex' ):" << endl <<
+        "                item.reindex()" << endl <<
         endl <<
         endl <<
         endl <<
