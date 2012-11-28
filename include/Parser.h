@@ -4,6 +4,8 @@
 
 #include "jet/Utf8String.h"
 #include "jet/Exception.h"
+#include "jet/Directory.h"
+#include "jet/File.h"
 
 #include "Token.h"
 #include "Model.h"

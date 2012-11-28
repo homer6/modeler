@@ -64,6 +64,27 @@ namespace modeler{
     }
 
 
+    bool Model::hasNameAttribute() const{
+
+        ModelField *field;
+
+        field = this->getFieldByName( Utf8String("name") );
+
+        if( field != NULL ){
+
+            if( field->getType() == "attribute" ){
+
+                return true;
+
+            }
+
+        }
+
+        return false;
+
+    }
+
+
 
 
     std::ostream& Model::writeBaseModelFile( std::ostream &output_stream ) const{
@@ -121,7 +142,7 @@ namespace modeler{
 
                 model_field = it->second;
 
-                cout << this->name << ":" << model_field->getName() << endl;
+                //cout << this->name << ":" << model_field->getName() << endl;
 
                 if( model_field->getType() != "attribute" ){
                     continue;
@@ -338,7 +359,7 @@ namespace modeler{
     }
 
 
-    std::ostream& Model::writeBaseCollectionFile( std::ostream &output_stream ) const{
+    std::ostream& Model::writeBaseSetFile( std::ostream &output_stream ) const{
 
         output_stream <<
         endl <<
@@ -360,11 +381,24 @@ namespace modeler{
         "        self.object_set = set()" << endl <<
         "        self.name_set = set()" << endl <<
         endl <<
-        "        for value in initvalue:" << endl <<
-        "            self.add( value )" << endl <<
-        endl <<
         "        if self.element is None:" << endl <<
         "            self.element = self.create_default_element()" << endl <<
+        "            for value in initvalue:" << endl <<
+        "                self.add( value )" << endl <<
+        endl <<
+        "        else:" << endl <<
+        "            self.reindex()" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    def reindex( self ):" << endl <<
+        endl <<
+        "        for item_element in self.element.iterchildren():" << endl <<
+        "            item = " << this->name << "( xml_element = item_element )" << endl <<
+        "            self.object_set.add( item )" << endl <<
+        "            self.name_set.add( item.name )" << endl <<
+        "            if hasattr( item, 'reindex' ):" << endl <<
+        "                item.reindex()" << endl <<
         endl <<
         endl <<
         endl <<
@@ -393,6 +427,20 @@ namespace modeler{
         endl <<
         endl <<
         endl <<
+        "    def get( self, item_name ):" << endl <<
+        endl <<
+        "        if not isinstance( item_name, str ):" << endl <<
+        "            raise Exception( '" << this->name << "Set.get expects a str.' )" << endl <<
+        endl <<
+        "        if item_name in self.name_set:" << endl <<
+        "            for item in self.object_set:" << endl <<
+        "                if item.name == item_name:" << endl <<
+        "                    return item" << endl <<
+        endl <<
+        "        return None" << endl <<
+        endl <<
+        endl <<
+        endl <<
         "    def discard( self, item ):" << endl <<
         endl <<
         "        if not isinstance( item, " << this->name << " ):" << endl <<
@@ -406,6 +454,15 @@ namespace modeler{
         "            self.element.remove( item.element )" << endl <<
         "            self.object_set.discard( item )" << endl <<
         "            self.name_set.discard( item_name )" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    @property" << endl <<
+        "    def names( self ):" << endl <<
+        endl <<
+        "        temp_list = list( self.name_set )" << endl <<
+        "        temp_list.sort()" << endl <<
+        "        return temp_list" << endl <<
         endl <<
         endl <<
         endl <<
@@ -424,6 +481,9 @@ namespace modeler{
         "    def __contains__( self, item ):" << endl <<
         endl <<
         "        try:" << endl <<
+        endl <<
+        "            if isinstance( item, str ):" << endl <<
+        "                return item in self.name_set" << endl <<
         endl <<
         "            if not isinstance( item, " << this->name << " ):" << endl <<
         "                raise Exception( '" << this->name << "Set.__contains__ expects a " << this->name << ".' )" << endl <<
@@ -444,13 +504,98 @@ namespace modeler{
     }
 
 
-    std::ostream& Model::writeCollectionFile( std::ostream &output_stream ) const{
+    std::ostream& Model::writeSetFile( std::ostream &output_stream ) const{
 
         output_stream << endl << endl << endl <<
         endl <<
         "from base.Base" << this->name << "Set import Base" << this->name << "Set" << endl <<
         endl <<
         "class " << this->name << "Set( Base" << this->name << "Set ):" << endl <<
+        endl <<
+        "    pass" << endl;
+
+        return output_stream;
+
+    }
+
+
+    std::ostream& Model::writeBaseListFile( std::ostream &output_stream ) const{
+
+        output_stream <<
+        endl <<
+        "from lxml.etree import XML, tostring, parse, Element, XMLParser" << endl <<
+        "from fd.model.xml_model import XmlModel" << endl <<
+        endl <<
+        "from fd.model." << this->name << " import " << this->name << endl <<
+        endl <<
+        endl <<
+        "class Base" << this->name << "List( list, XmlModel ):" << endl <<
+        endl <<
+        endl <<
+        "    def __init__( self, xml_element = None, filename = None, xml_string = None, initvalue = () ):" << endl <<
+        endl <<
+        "        XmlModel.__init__( self, xml_element = xml_element, filename = filename, xml_string = xml_string )" << endl <<
+        endl <<
+        "        self.object_list = list()" << endl <<
+        endl <<
+        "        for value in initvalue:" << endl <<
+        "            self.append( value )" << endl <<
+        endl <<
+        "        if self.element is None:" << endl <<
+        "            self.element = self.create_default_element()" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    def create_default_element( self ):" << endl <<
+        endl <<
+        "        element = Element( '" << this->name.toLowerCase() << "s' )" << endl <<
+        "        return element" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    def append( self, item ):" << endl <<
+        endl <<
+        "        if not isinstance( item, " << this->name << " ):" << endl <<
+        "            raise Exception( '" << this->name << "List.add expects a " << this->name << ".' )" << endl <<
+        endl <<
+        "        self.object_list.append( item )" << endl <<
+        "        self.element.append( item.element )" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    def remove( self, item_index ):" << endl <<
+        endl <<
+        "        item_element = self.element.index( item_index )" << endl <<
+        "        if item_element:" << endl <<
+        "            self.element.remove( item_element )" << endl <<
+        "            self.object_list.remove( item_index )" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    def __iter__( self ):" << endl <<
+        endl <<
+        "        return iter( self.object_list )" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    def __len__( self ):" << endl <<
+        endl <<
+        "        return len( self.object_list )" << endl <<
+        endl <<
+        endl;
+
+        return output_stream;
+
+    }
+
+
+    std::ostream& Model::writeListFile( std::ostream &output_stream ) const{
+
+        output_stream << endl << endl << endl <<
+        endl <<
+        "from base.Base" << this->name << "List import Base" << this->name << "List" << endl <<
+        endl <<
+        "class " << this->name << "List( Base" << this->name << "List ):" << endl <<
         endl <<
         "    pass" << endl;
 

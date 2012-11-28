@@ -32,10 +32,14 @@ namespace modeler{
             void addField( ModelField *model_field );
             ModelField* getFieldByName( Utf8String const &field_name ) const;
 
+            bool hasNameAttribute() const;
+
             std::ostream& writeBaseModelFile( std::ostream &output_stream ) const;
             std::ostream& writeModelFile( std::ostream &output_stream ) const;
-            std::ostream& writeBaseCollectionFile( std::ostream &output_stream ) const;
-            std::ostream& writeCollectionFile( std::ostream &output_stream ) const;
+            std::ostream& writeBaseSetFile( std::ostream &output_stream ) const;
+            std::ostream& writeSetFile( std::ostream &output_stream ) const;
+            std::ostream& writeBaseListFile( std::ostream &output_stream ) const;
+            std::ostream& writeListFile( std::ostream &output_stream ) const;
 
             friend std::ostream& operator<<( std::ostream &output_stream, const Model &output_model );
 

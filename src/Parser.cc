@@ -424,6 +424,20 @@ namespace modeler{
         Utf8String *model_filename;
         Utf8String *base_collection_filename;
         Utf8String *collection_filename;
+        Utf8String *collection_suffix;
+
+        bool has_name_attribute;
+        bool create_derived_model;
+        bool create_derived_collection;
+
+        Directory base_directory;
+        base_directory.appendToPath( Utf8String("/base") );
+
+        if( !base_directory.exists() ){
+            base_directory.create();
+            File empty_file( base_directory.getFullPath() + Utf8String("/__init__.py") );
+            empty_file.write( " " );
+        }
 
 
         for( iterator = this->models.begin(); iterator != this->models.end(); iterator++ ){
@@ -432,30 +446,71 @@ namespace modeler{
 
             fstream base_model_file, model_file, base_collection_file, collection_file;
 
-            base_model_filename = new Utf8String( Utf8String("Base") + model->getName() + Utf8String(".py") );
+            if( model->hasNameAttribute() ){
+                collection_suffix = new Utf8String("Set");
+                has_name_attribute = true;
+            }else{
+                collection_suffix = new Utf8String("List");
+                has_name_attribute = false;
+            }
+
+
+            base_model_filename = new Utf8String( base_directory.getFullPath() + Utf8String("/") + Utf8String("Base") + model->getName() + Utf8String(".py") );
             model_filename = new Utf8String( model->getName() + Utf8String(".py") );
-            base_collection_filename = new Utf8String( Utf8String("Base") + model->getName() + Utf8String("Set.py") );
-            collection_filename = new Utf8String( model->getName() + Utf8String("Set.py") );
+            base_collection_filename = new Utf8String( base_directory.getFullPath() + Utf8String("/") + Utf8String("Base") + model->getName() + *collection_suffix + Utf8String(".py") );
+            collection_filename = new Utf8String( model->getName() + *collection_suffix + Utf8String(".py") );
+
+            if( File::exists(*model_filename) ){
+                create_derived_model = false;
+            }else{
+                create_derived_model = true;
+            }
+
+            if( File::exists(*collection_filename) ){
+                create_derived_collection = false;
+            }else{
+                create_derived_collection = true;
+            }
 
             base_model_file.open( base_model_filename->getCString(), fstream::out );
-            model_file.open( model_filename->getCString(), fstream::out );
+            if( create_derived_model ){
+                model_file.open( model_filename->getCString(), fstream::out );
+            }
             base_collection_file.open( base_collection_filename->getCString(), fstream::out );
-            collection_file.open( collection_filename->getCString(), fstream::out );
+            if( create_derived_collection ){
+                collection_file.open( collection_filename->getCString(), fstream::out );
+            }
 
             model->writeBaseModelFile( base_model_file );
-            model->writeModelFile( model_file );
-            model->writeBaseCollectionFile( base_collection_file );
-            model->writeCollectionFile( collection_file );
+            if( create_derived_model ){
+                model->writeModelFile( model_file );
+            }
+            if( has_name_attribute ){
+                model->writeBaseSetFile( base_collection_file );
+                if( create_derived_collection ){
+                    model->writeSetFile( collection_file );
+                }
+            }else{
+                model->writeBaseListFile( base_collection_file );
+                if( create_derived_collection ){
+                    model->writeListFile( collection_file );
+                }
+            }
 
             base_model_file.close();
-            model_file.close();
+            if( create_derived_model ){
+                model_file.close();
+            }
             base_collection_file.close();
-            collection_file.close();
+            if( create_derived_collection ){
+                collection_file.close();
+            }
 
             delete base_model_filename;
             delete model_filename;
             delete base_collection_filename;
             delete collection_filename;
+            delete collection_suffix;
 
         }
 
