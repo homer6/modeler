@@ -147,7 +147,7 @@ namespace modeler{
                 output_stream << endl;
                 output_stream << "        this->" << model_field->getName() << " = " << model_field->getName() << ";" << endl;
                 output_stream << endl;
-                output_stream << "    };" << endl;
+                output_stream << "    }" << endl;
 
                 output_stream << endl;
                 output_stream << endl;
@@ -156,7 +156,7 @@ namespace modeler{
                 output_stream << endl;
                 output_stream << "        return this->" << model_field->getName() << ";" << endl;
                 output_stream << endl;
-                output_stream << "    };" << endl;
+                output_stream << "    }" << endl;
 
                 output_stream << endl;
                 output_stream << endl;
