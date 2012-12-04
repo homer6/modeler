@@ -141,6 +141,18 @@ class XmlModel( object ):
 
 
 
+    def remove_attribute( self, attribute_name ):
+        """
+        Removes the attribute on self.element.
+        """
+
+        attribute_name = attribute_name.encode('utf-8')
+
+        if attribute_name in self.element.attrib:
+            del self.element.attrib[ attribute_name ]
+
+
+
     def set_tag_value( self, tag_name, tag_value, parent_element = None ):
         """
         Sets the xml text() of a given subelement of the main self.element, by tag name.
@@ -174,4 +186,22 @@ class XmlModel( object ):
 
         return tag_element.text
 
+
+
+    def remove_tag( self, tag_name, parent_element = None ):
+        """
+        Removes the given subelement of the main self.element, by tag name, as a string.
+        If parent_element is not None, it will use that as the reference parent instead of self.element.
+        """
+
+        if parent_element is None:
+            parent_element = self.element
+
+        tag_name = tag_name.encode('utf-8')
+        tag_element = parent_element.find( tag_name )
+
+        if tag_element is None:
+            return
+
+        parent_element.remove( tag_element )
 
