@@ -69,6 +69,8 @@ namespace modeler{
         ModelFieldMap::const_iterator it;
         ModelField *model_field;
 
+        int x;
+
         //Header file
 
             output_stream <<
@@ -86,6 +88,19 @@ namespace modeler{
             endl <<
             "        public:" << endl <<
             "            " << this->name << "();" << endl <<
+            "            " << this->name << "( ";
+
+            x = 0;
+            for( it = this->fields.begin(); it != this->fields.end(); it++ ){
+                if( x > 0 ){
+                    output_stream << ", ";
+                }
+                model_field = it->second;
+                output_stream << model_field->getType() << " " << model_field->getName();
+                x++;
+            }
+
+            output_stream << " );" << endl <<
             "            ~" << this->name << "();" << endl << endl;
 
 
@@ -129,15 +144,84 @@ namespace modeler{
         ModelFieldMap::const_iterator it;
         ModelField *model_field;
 
+        int x = 0;
+
+
         //Implementation File
 
             output_stream << ""
-            "#include \"" << this->name << ".h\"" << endl <<
+            "#include \"jet/" << this->name << ".h\"" << endl <<
             endl <<
             endl <<
             "namespace jet{" << endl <<
             endl <<
             endl;
+
+
+            output_stream <<
+            endl << "    " << this->name << "::" << this->name << "()" << endl <<
+            "        :";
+
+            for( it = this->fields.begin(); it != this->fields.end(); it++ ){
+                if( x > 0 ){
+                    output_stream << ", ";
+                }
+                model_field = it->second;
+                output_stream << model_field->getName() << "(" << model_field->getName() << ")";
+                x++;
+            }
+
+            output_stream << endl <<
+            "    {" << endl <<
+            endl <<
+            endl << "    }" <<
+            endl <<
+            endl <<
+            endl << "    " << this->name << "::" << this->name << "( ";
+
+            x = 0;
+            for( it = this->fields.begin(); it != this->fields.end(); it++ ){
+                if( x > 0 ){
+                    output_stream << ", ";
+                }
+                model_field = it->second;
+                output_stream << model_field->getType() << " " << model_field->getName();
+                x++;
+            }
+
+            output_stream <<
+            " )" <<
+            endl << "        :";
+
+            x = 0;
+            for( it = this->fields.begin(); it != this->fields.end(); it++ ){
+                if( x > 0 ){
+                    output_stream << ", ";
+                }
+                model_field = it->second;
+                output_stream << model_field->getName() << "(" << model_field->getName() << ")";
+                x++;
+            }
+
+            output_stream <<
+            endl << "    {" <<
+            endl <<
+            endl <<
+            endl << "    }" <<
+            endl <<
+            endl <<
+            endl;
+
+
+
+            output_stream <<
+            endl << "    " << this->name << "::~" << this->name << "(){" << endl <<
+            endl <<
+            endl << "    }" <<
+            endl <<
+            endl <<
+            endl;
+
 
             for( it = this->fields.begin(); it != this->fields.end(); it++ ){
 
@@ -165,6 +249,50 @@ namespace modeler{
 
             output_stream <<
             "}" << endl <<
+            endl;
+
+        return output_stream;
+
+    }
+
+
+    std::ostream& Model::writeTestFile( std::ostream &output_stream ) const{
+
+        ModelFieldMap::const_iterator it;
+        ModelField *model_field;
+
+        Utf8String variable_name( this->name.toLowerCase() );
+
+
+            output_stream << ""
+            "#include \"jet/" << this->name << ".h\"" << endl <<
+            endl <<
+            endl <<
+            "using namespace jet;" << endl <<
+            endl <<
+            "class " << this->name << "Test{" << endl <<
+            endl <<
+            endl <<
+            "    public:" << endl <<
+            "        void run(){" << endl <<
+            endl <<
+            "            " << this->name << " " << variable_name << ";" << endl <<
+            endl;
+
+            for( it = this->fields.begin(); it != this->fields.end(); it++ ){
+
+                model_field = it->second;
+
+                output_stream << "            " << variable_name << ".set" << model_field->getName().toCamelCase() << "( " << model_field->getName() << " );" << endl;
+                output_stream << "            " << variable_name << ".get" << model_field->getName().toCamelCase() << "();" << endl;
+                output_stream << endl;
+                output_stream << endl;
+
+            }
+
+            output_stream <<
+            "        }" << endl <<
+            "};" << endl <<
             endl;
 
         return output_stream;

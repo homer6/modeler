@@ -425,19 +425,23 @@ namespace modeler{
 
             model = iterator->second;
 
-            fstream header_file, implementation_file;
+            fstream header_file, implementation_file, test_file;
 
             Utf8String header_filename( model->getName() + Utf8String(".h") );
             Utf8String implementation_filename( model->getName() + Utf8String(".cc") );
+            Utf8String test_filename( model->getName() + Utf8String("Test.h") );
 
             header_file.open( header_filename.getCString(), fstream::out );
             implementation_file.open( implementation_filename.getCString(), fstream::out );
+            test_file.open( test_filename.getCString(), fstream::out );
 
             model->writeHeaderFile( header_file );
             model->writeImplementationFile( implementation_file );
+            model->writeTestFile( test_file );
 
             header_file.close();
             implementation_file.close();
+            test_file.close();
 
         }
 

@@ -34,6 +34,7 @@ namespace modeler{
 
             std::ostream& writeHeaderFile( std::ostream &output_stream ) const;
             std::ostream& writeImplementationFile( std::ostream &output_stream ) const;
+            std::ostream& writeTestFile( std::ostream &output_stream ) const;
 
             friend std::ostream& operator<<( std::ostream &output_stream, const Model &output_model );
 
