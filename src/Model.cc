@@ -656,6 +656,12 @@ namespace modeler{
         endl <<
         endl <<
         endl <<
+        "    def __getitem__( self, item ):" << endl <<
+        endl <<
+        "        return self.object_list[ item ]" << endl <<
+        endl <<
+        endl <<
+        endl <<
         "    def __len__( self ):" << endl <<
         endl <<
         "        return len( self.object_list )" << endl <<
