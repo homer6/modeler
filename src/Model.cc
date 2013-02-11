@@ -431,7 +431,8 @@ namespace modeler{
         "            raise Exception( '" << this->name << " must have a name.' )" << endl <<
         endl <<
         "        if item_name in self.name_set:" << endl <<
-        "            raise Exception( 'This " << this->name << " is already in this set.' )" << endl <<
+        "            existing_element = self.get( item_name )" << endl <<
+        "            self.remove( existing_element )" << endl <<
         endl <<
         "        self.object_set.add( item )" << endl <<
         "        self.name_set.add( item_name )" << endl <<
