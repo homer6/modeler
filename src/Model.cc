@@ -403,6 +403,7 @@ namespace modeler{
         endl <<
         "        from fd.model." << this->name << " import " << this->name << endl <<
         endl <<
+        "        self.object_set = set()" << endl <<
         "        for item_element in self.element.iterchildren():" << endl <<
         "            item = " << this->name << "( xml_element = item_element )" << endl <<
         "            self.object_set.add( item )" << endl <<
@@ -617,6 +618,7 @@ namespace modeler{
         endl <<
         "        from fd.model." << this->name << " import " << this->name << endl <<
         endl <<
+        "        self.object_list = list()" << endl <<
         "        for item_element in self.element.iterchildren():" << endl <<
         "            item = " << this->name << "( xml_element = item_element )" << endl <<
         "            self.object_list.append( item )" << endl <<
