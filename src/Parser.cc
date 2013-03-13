@@ -198,6 +198,7 @@ namespace modeler{
                     line_character_position++;
                     continue;
 
+                /*
                 case ',':
                     this->addToken( new Token(COMMA, line_number, line_character_position) );
                     line_character_position++;
@@ -212,6 +213,7 @@ namespace modeler{
                     this->addToken( new Token(GREATER_THAN, line_number, line_character_position) );
                     line_character_position++;
                     continue;
+                */
 
             };
 
@@ -219,7 +221,12 @@ namespace modeler{
                 ( current_character >= 0x41 && current_character <= 0x5A ) ||  //upper-case alpha
                 ( current_character >= 0x61 && current_character <= 0x7A ) ||  //lower-case alpha
                 ( current_character >= 0x30 && current_character <= 0x39 ) ||  //numeric
-                ( current_character == 0x5F )                                  //underscore
+                ( current_character == 0x5F ) ||                               //underscore
+                ( current_character == 0x2C ) ||                               //comma
+                ( current_character == 0x3C ) ||                               //less than
+                ( current_character == 0x3E ) ||                               //greater than
+                ( current_character == 0x2A ) ||                               //asterix
+                ( current_character == 0x26 )                                  //ampersand
             ){
 
                 if( this->token_stream.size() == 0 ){
