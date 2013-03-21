@@ -310,11 +310,17 @@ namespace modeler{
                     output_stream << "        tag = self.get_tag_by_name( '" << model_field->getName() << "' )" << endl;
 
                     output_stream << "        if isinstance( " << model_field->getName() << ", XmlModel ):" << endl << endl;
-                    output_stream << "            tag = " << model_field->getName() << ".element" << endl << endl;
+                    output_stream << "            if tag is None: " << endl;
+                    output_stream << "                self.element.append( " << model_field->getName() << ".element )" << endl;
+                    output_stream << "            else: " << endl;
+                    output_stream << "                tag = " << model_field->getName() << ".element" << endl << endl;
 
                     output_stream << "        elif isinstance( " << model_field->getName() << ", str ):" << endl << endl;
                     output_stream << "            xml_model = " << model_field->getType() << "( xml_string = " << model_field->getName() << " )" << endl;
-                    output_stream << "            tag = xml_model.element" << endl << endl;
+                    output_stream << "            if tag is None: " << endl;
+                    output_stream << "                self.element.append( xml_model.element )" << endl;
+                    output_stream << "            else: " << endl;
+                    output_stream << "                tag = xml_model.element" << endl << endl;
 
                     output_stream << "        else:" << endl << endl;
                     output_stream << "            raise Exception( 'Unexpected type for " << this->name << "." << model_field->getName() << "' )" << endl;
