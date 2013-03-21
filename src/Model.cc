@@ -523,6 +523,23 @@ namespace modeler{
         "            return False" << endl <<
         endl <<
         endl <<
+        endl <<
+        "    def as_json_string( self ):" << endl <<
+        "        \"\"\"" << endl <<
+        "        Returns the lxml element converted to a json string." << endl <<
+        "        Requires \"pip install xmltodict\"" << endl << endl <<
+        "        See: https://github.com/martinblech/xmltodict" << endl <<
+        "        :return: string" << endl <<
+        "        \"\"\"" << endl << endl <<
+        "        import xmltodict, json" << endl << endl <<
+        "        results = []" << endl <<
+        "        for sub_object in self.object_set:" << endl <<
+        "            xml_dict = xmltodict.parse( sub_object.as_string() )" << endl <<
+        "            results.append( xml_dict )" << endl <<
+        endl <<
+        "        return json.dumps( results )" << endl <<
+        endl <<
+        endl <<
         endl;
 
 
@@ -674,6 +691,23 @@ namespace modeler{
         "    def __len__( self ):" << endl <<
         endl <<
         "        return len( self.object_list )" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    def as_json_string( self ):" << endl <<
+        "        \"\"\"" << endl <<
+        "        Returns the lxml element converted to a json string." << endl <<
+        "        Requires \"pip install xmltodict\"" << endl << endl <<
+        "        See: https://github.com/martinblech/xmltodict" << endl <<
+        "        :return: string" << endl <<
+        "        \"\"\"" << endl << endl <<
+        "        import xmltodict, json" << endl << endl <<
+        "        results = []" << endl <<
+        "        for sub_object in self.object_list:" << endl <<
+        "            xml_dict = xmltodict.parse( sub_object.as_string() )" << endl <<
+        "            results.append( xml_dict )" << endl <<
+        endl <<
+        "        return json.dumps( results )" << endl <<
         endl <<
         endl <<
         endl;
