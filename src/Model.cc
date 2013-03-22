@@ -108,18 +108,29 @@ namespace modeler{
         endl <<
         "        if self.element is None:" <<
         endl <<
-        "            self.element = self.create_default_element()" << endl;
-
-
-        output_stream << endl << endl <<
+        "            self.element = self.create_default_element()" << endl <<
+        endl <<
+        endl <<
+        endl <<
         "    def create_default_element( self ):" << endl <<
         endl <<
         "        element = Element( '" << this->name.toLowerCase() << "' )" << endl <<
-        "        return element" << endl;
-
-
-
-        output_stream << endl << endl << endl;
+        "        return element" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    def as_dict( self ):" << endl <<
+        "        \"\"\"" << endl <<
+        "        Returns the lxml element converted to a json dict." << endl <<
+        "        Requires \"pip install xmltodict\"" << endl << endl <<
+        "        See: https://github.com/martinblech/xmltodict" << endl <<
+        "        :return: dict" << endl <<
+        "        \"\"\"" << endl << endl <<
+        "        import xmltodict" << endl << endl <<
+        "        return xmltodict.parse( self.as_string() )" << endl <<
+        endl <<
+        endl <<
+        endl;
 
 
         // the getter, setter and deleter for each of the attributes
@@ -534,8 +545,7 @@ namespace modeler{
         "        import xmltodict" << endl << endl <<
         "        results = []" << endl <<
         "        for sub_object in self.object_set:" << endl <<
-        "            xml_dict = xmltodict.parse( sub_object.as_string() )" << endl <<
-        "            results.append( xml_dict )" << endl <<
+        "            results.append( sub_object.as_dict() )" << endl <<
         endl <<
         "        return results" << endl <<
         endl <<
@@ -717,8 +727,7 @@ namespace modeler{
         "        import xmltodict" << endl << endl <<
         "        results = []" << endl <<
         "        for sub_object in self.object_list:" << endl <<
-        "            xml_dict = xmltodict.parse( sub_object.as_string() )" << endl <<
-        "            results.append( xml_dict )" << endl <<
+        "            results.append( sub_object.as_dict() )" << endl <<
         endl <<
         "        return results" << endl <<
         endl <<
