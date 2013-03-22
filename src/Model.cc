@@ -524,6 +524,23 @@ namespace modeler{
         endl <<
         endl <<
         endl <<
+        "    def as_dict( self ):" << endl <<
+        "        \"\"\"" << endl <<
+        "        Returns the lxml element converted to a json dict (a list of dicts)." << endl <<
+        "        Requires \"pip install xmltodict\"" << endl << endl <<
+        "        See: https://github.com/martinblech/xmltodict" << endl <<
+        "        :return: list" << endl <<
+        "        \"\"\"" << endl << endl <<
+        "        import xmltodict" << endl << endl <<
+        "        results = []" << endl <<
+        "        for sub_object in self.object_set:" << endl <<
+        "            xml_dict = xmltodict.parse( sub_object.as_string() )" << endl <<
+        "            results.append( xml_dict )" << endl <<
+        endl <<
+        "        return results" << endl <<
+        endl <<
+        endl <<
+        endl <<
         "    def as_json_string( self ):" << endl <<
         "        \"\"\"" << endl <<
         "        Returns the lxml element converted to a json string." << endl <<
@@ -531,13 +548,9 @@ namespace modeler{
         "        See: https://github.com/martinblech/xmltodict" << endl <<
         "        :return: string" << endl <<
         "        \"\"\"" << endl << endl <<
-        "        import xmltodict, json" << endl << endl <<
-        "        results = []" << endl <<
-        "        for sub_object in self.object_set:" << endl <<
-        "            xml_dict = xmltodict.parse( sub_object.as_string() )" << endl <<
-        "            results.append( xml_dict )" << endl <<
-        endl <<
-        "        return json.dumps( results )" << endl <<
+        "        import json" << endl << endl <<
+        "        return json.dumps( self.as_dict() )" << endl <<
+
         endl <<
         endl <<
         endl;
@@ -694,6 +707,23 @@ namespace modeler{
         endl <<
         endl <<
         endl <<
+        "    def as_dict( self ):" << endl <<
+        "        \"\"\"" << endl <<
+        "        Returns the lxml element converted to a json dict (a list of dicts)." << endl <<
+        "        Requires \"pip install xmltodict\"" << endl << endl <<
+        "        See: https://github.com/martinblech/xmltodict" << endl <<
+        "        :return: list" << endl <<
+        "        \"\"\"" << endl << endl <<
+        "        import xmltodict" << endl << endl <<
+        "        results = []" << endl <<
+        "        for sub_object in self.object_list:" << endl <<
+        "            xml_dict = xmltodict.parse( sub_object.as_string() )" << endl <<
+        "            results.append( xml_dict )" << endl <<
+        endl <<
+        "        return results" << endl <<
+        endl <<
+        endl <<
+        endl <<
         "    def as_json_string( self ):" << endl <<
         "        \"\"\"" << endl <<
         "        Returns the lxml element converted to a json string." << endl <<
@@ -701,13 +731,8 @@ namespace modeler{
         "        See: https://github.com/martinblech/xmltodict" << endl <<
         "        :return: string" << endl <<
         "        \"\"\"" << endl << endl <<
-        "        import xmltodict, json" << endl << endl <<
-        "        results = []" << endl <<
-        "        for sub_object in self.object_list:" << endl <<
-        "            xml_dict = xmltodict.parse( sub_object.as_string() )" << endl <<
-        "            results.append( xml_dict )" << endl <<
-        endl <<
-        "        return json.dumps( results )" << endl <<
+        "        import json" << endl << endl <<
+        "        return json.dumps( self.as_dict() )" << endl <<
         endl <<
         endl <<
         endl;
