@@ -224,7 +224,7 @@ namespace modeler{
                 "    def " << model_field->getName() << "( self ):" << endl <<
                 "        \"\"\"" << endl <<
                 "        Gets the " << model_field->getName() << " text body on this " << this->name << ".  Returns None if the text body doesn't exist." << endl <<
-                "        @return {str}" << endl <<
+                "        @return {basestring}" << endl <<
                 "        \"\"\"" << endl <<
                 endl <<
                 "        return self.element.text" << endl <<
@@ -237,7 +237,7 @@ namespace modeler{
                 "    def " << model_field->getName() << "( self, " << model_field->getName() << " ):" << endl <<
                 "        \"\"\"" << endl <<
                 "        Sets the " << model_field->getName() << " text body on this " << this->name << "." << endl <<
-                "        @param {str} " << model_field->getName() << endl <<
+                "        @param {basestring} " << model_field->getName() << endl <<
                 "        \"\"\"" << endl <<
                 endl <<
                 "        self.element.text = " << model_field->getName() << endl <<
@@ -326,7 +326,7 @@ namespace modeler{
                     output_stream << "            else: " << endl;
                     output_stream << "                tag = " << model_field->getName() << ".element" << endl << endl;
 
-                    output_stream << "        elif isinstance( " << model_field->getName() << ", str ):" << endl << endl;
+                    output_stream << "        elif isinstance( " << model_field->getName() << ", basestring ):" << endl << endl;
                     output_stream << "            xml_model = " << model_field->getType() << "( xml_string = " << model_field->getName() << " )" << endl;
                     output_stream << "            if tag is None: " << endl;
                     output_stream << "                self.element.append( xml_model.element )" << endl;
@@ -460,8 +460,8 @@ namespace modeler{
         endl <<
         "    def get( self, item_name ):" << endl <<
         endl <<
-        "        if not isinstance( item_name, str ):" << endl <<
-        "            raise Exception( '" << this->name << "Set.get expects a str.' )" << endl <<
+        "        if not isinstance( item_name, basestring ):" << endl <<
+        "            raise Exception( '" << this->name << "Set.get expects a basestring.' )" << endl <<
         endl <<
         "        if item_name in self.name_set:" << endl <<
         "            for item in self.object_set:" << endl <<
@@ -515,7 +515,7 @@ namespace modeler{
         endl <<
         "        try:" << endl <<
         endl <<
-        "            if isinstance( item, str ):" << endl <<
+        "            if isinstance( item, basestring ):" << endl <<
         "                return item in self.name_set" << endl <<
         endl <<
         "            from fd.model." << this->name << " import " << this->name << endl <<
@@ -738,7 +738,7 @@ namespace modeler{
         "        Returns the lxml element converted to a json string." << endl <<
         "        Requires \"pip install xmltodict\"" << endl << endl <<
         "        See: https://github.com/martinblech/xmltodict" << endl <<
-        "        :return: string" << endl <<
+        "        :return: basestring" << endl <<
         "        \"\"\"" << endl << endl <<
         "        import json" << endl << endl <<
         "        return json.dumps( self.as_dict() )" << endl <<
