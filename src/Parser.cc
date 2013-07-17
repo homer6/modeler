@@ -426,7 +426,6 @@ namespace modeler{
         Utf8String *collection_filename;
         Utf8String *collection_suffix;
 
-        bool has_name_attribute;
         bool create_derived_model;
         bool create_derived_collection;
 
@@ -435,8 +434,6 @@ namespace modeler{
 
         if( !base_directory.exists() ){
             base_directory.create();
-            File empty_file( base_directory.getFullPath() + Utf8String("/__init__.py") );
-            empty_file.write( " " );
         }
 
 
@@ -446,19 +443,12 @@ namespace modeler{
 
             fstream base_model_file, model_file, base_collection_file, collection_file;
 
-            if( model->hasNameAttribute() ){
-                collection_suffix = new Utf8String("Set");
-                has_name_attribute = true;
-            }else{
-                collection_suffix = new Utf8String("List");
-                has_name_attribute = false;
-            }
+            collection_suffix = new Utf8String("List");
 
-
-            base_model_filename = new Utf8String( base_directory.getFullPath() + Utf8String("/") + Utf8String("Base") + model->getName() + Utf8String(".py") );
-            model_filename = new Utf8String( model->getName() + Utf8String(".py") );
-            base_collection_filename = new Utf8String( base_directory.getFullPath() + Utf8String("/") + Utf8String("Base") + model->getName() + *collection_suffix + Utf8String(".py") );
-            collection_filename = new Utf8String( model->getName() + *collection_suffix + Utf8String(".py") );
+            base_model_filename = new Utf8String( base_directory.getFullPath() + Utf8String("/") + Utf8String("Base") + model->getName() + Utf8String(".js") );
+            model_filename = new Utf8String( model->getName() + Utf8String(".js") );
+            base_collection_filename = new Utf8String( base_directory.getFullPath() + Utf8String("/") + Utf8String("Base") + model->getName() + *collection_suffix + Utf8String(".js") );
+            collection_filename = new Utf8String( model->getName() + *collection_suffix + Utf8String(".js") );
 
             if( File::exists(*model_filename) ){
                 create_derived_model = false;
@@ -485,16 +475,10 @@ namespace modeler{
             if( create_derived_model ){
                 model->writeModelFile( model_file );
             }
-            if( has_name_attribute ){
-                model->writeBaseSetFile( base_collection_file );
-                if( create_derived_collection ){
-                    model->writeSetFile( collection_file );
-                }
-            }else{
-                model->writeBaseListFile( base_collection_file );
-                if( create_derived_collection ){
-                    model->writeListFile( collection_file );
-                }
+
+            model->writeBaseListFile( base_collection_file );
+            if( create_derived_collection ){
+                model->writeListFile( collection_file );
             }
 
             base_model_file.close();

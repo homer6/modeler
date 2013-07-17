@@ -93,44 +93,32 @@ namespace modeler{
         ModelField *model_field;
         bool is_user_type;
 
-        output_stream << endl << endl << endl <<
-        endl <<
-        "from lxml.etree import XML, tostring, parse, Element, XMLParser" << endl <<
-        "from fd.model.xml_model import XmlModel" << endl;
-
         output_stream << endl <<
-        "class Base" << this->name << "( XmlModel ):" << endl <<
         endl <<
+        "Base" << this->name << " = function( data_reference ){" << endl <<
+        "    XmlModel.apply( this, arguments );" << endl <<
         endl <<
-        "    def __init__( self, xml_element = None, filename = None, xml_string = None ):" << endl <<
-        endl <<
-        "        XmlModel.__init__( self, xml_element = xml_element, filename = filename, xml_string = xml_string )" << endl <<
-        endl <<
-        "        if self.element is None:" <<
-        endl <<
-        "            self.element = self.create_default_element()" << endl <<
-        endl <<
-        endl <<
-        endl <<
-        "    def create_default_element( self ):" << endl <<
-        endl <<
-        "        element = Element( '" << this->name.toLowerCase() << "' )" << endl <<
-        "        return element" << endl <<
-        endl <<
-        endl <<
-        endl <<
-        "    def as_dict( self ):" << endl <<
-        "        \"\"\"" << endl <<
-        "        Returns the lxml element converted to a json dict." << endl <<
-        "        Requires \"pip install xmltodict\"" << endl << endl <<
-        "        See: https://github.com/martinblech/xmltodict" << endl <<
-        "        :return: dict" << endl <<
-        "        \"\"\"" << endl << endl <<
-        "        import xmltodict" << endl << endl <<
-        "        return xmltodict.parse( self.as_string() )" << endl <<
-        endl <<
-        endl <<
-        endl;
+        "    var me = this;" << endl << endl;
+
+
+
+        //initialize user types (to maintain a reference to them)
+
+            for( it = this->fields.begin(); it != this->fields.end(); it++ ){
+
+                model_field = it->second;
+
+                if( model_field->getType() == "attribute" || model_field->getType() == "text_body" || !model_field->isUserType() ){
+                    continue;
+                }
+
+                output_stream <<
+                "    var " << model_field->getName() << " = null;" << endl;
+
+            }
+
+
+        output_stream << endl << endl << endl;
 
 
         // the getter, setter and deleter for each of the attributes
@@ -147,58 +135,25 @@ namespace modeler{
 
                 output_stream <<
 
-                "    @property" << endl <<
-                "    def " << model_field->getName() << "( self ):" << endl <<
-                "        \"\"\"" << endl <<
-                "        Gets the " << model_field->getName() << " attribute on this " << this->name << ".  Returns None if the attribute doesn't exist." << endl <<
-                "        @return {string}" << endl <<
-                "        \"\"\"" << endl <<
-                endl <<
-                "        return self.get_attribute_value( '" << model_field->getName() << "' )" << endl <<
+                "    me.get" << model_field->getName().toCamelCase() << " = function(){" << endl <<
+                "        return me.getAttributeValue( '" << model_field->getName() << "' );" << endl <<
+                "    };" << endl <<
                 endl <<
                 endl <<
                 endl <<
 
 
-                "    @" << model_field->getName() << ".setter" << endl <<
-                "    def " << model_field->getName() << "( self, " << model_field->getName() << " ):" << endl <<
-                "        \"\"\"" << endl <<
-                "        Sets the " << model_field->getName() << " attribute on this " << this->name << "." << endl <<
-                "        @param {string} " << model_field->getName() << endl <<
-                "        \"\"\"" << endl <<
-                endl <<
-                "        self.set_attribute_value( '" << model_field->getName() << "', " << model_field->getName() << " )" << endl <<
+                "    me.set" << model_field->getName().toCamelCase() << " = function( " << model_field->getName() << " ){ " << endl <<
+                "        return me.setAttributeValue( '" << model_field->getName() << "', " << model_field->getName() << " );" << endl <<
+                "    };" << endl <<
                 endl <<
                 endl <<
                 endl <<
 
 
-                "    @" << model_field->getName() << ".deleter" << endl <<
-                "    def " << model_field->getName() << "( self ):" << endl <<
-                "        \"\"\"" << endl <<
-                "        Deletes the " << model_field->getName() << " attribute on this " << this->name << "." << endl <<
-                "        \"\"\"" << endl <<
-                endl <<
-                "        self.remove_attribute( '" << model_field->getName() << "' )" << endl <<
-                endl <<
-                endl <<
-                endl;
-
-
-                //other methods for models with the "name" attribute
-                if( model_field->getName() != "name" ){
-                    continue;
-                }
-
-                output_stream <<
-
-                "    def __hash__( self ):" << endl <<
-                "        \"\"\"" << endl <<
-                "        Determines a hash integer based on the name field so that this model can be placed in a set." << endl <<
-                "        @return {integer}" << endl <<
-                "        \"\"\"" << endl <<
-                endl <<
-                "        return hash( self.name )" << endl <<
+                "    me.remove" << model_field->getName().toCamelCase() << " = function(){" << endl <<
+                "        return me.removeAttribute( '" << model_field->getName() << "' );" << endl <<
+                "    };" << endl <<
                 endl <<
                 endl <<
                 endl;
@@ -220,39 +175,25 @@ namespace modeler{
 
                 output_stream <<
 
-                "    @property" << endl <<
-                "    def " << model_field->getName() << "( self ):" << endl <<
-                "        \"\"\"" << endl <<
-                "        Gets the " << model_field->getName() << " text body on this " << this->name << ".  Returns None if the text body doesn't exist." << endl <<
-                "        @return {basestring}" << endl <<
-                "        \"\"\"" << endl <<
-                endl <<
-                "        return self.element.text" << endl <<
+                "    me.get" << model_field->getName().toCamelCase() << " = function(){" << endl <<
+                "        return me.getTextValue( '" << model_field->getName() << "' );" << endl <<
+                "    };" << endl <<
                 endl <<
                 endl <<
                 endl <<
 
 
-                "    @" << model_field->getName() << ".setter" << endl <<
-                "    def " << model_field->getName() << "( self, " << model_field->getName() << " ):" << endl <<
-                "        \"\"\"" << endl <<
-                "        Sets the " << model_field->getName() << " text body on this " << this->name << "." << endl <<
-                "        @param {basestring} " << model_field->getName() << endl <<
-                "        \"\"\"" << endl <<
-                endl <<
-                "        self.element.text = " << model_field->getName() << endl <<
+                "    me.set" << model_field->getName().toCamelCase() << " = function( " << model_field->getName() << " ){ " << endl <<
+                "        return me.setTextValue( '" << model_field->getName() << "', " << model_field->getName() << " );" << endl <<
+                "    };" << endl <<
                 endl <<
                 endl <<
                 endl <<
 
 
-                "    @" << model_field->getName() << ".deleter" << endl <<
-                "    def " << model_field->getName() << "( self ):" << endl <<
-                "        \"\"\"" << endl <<
-                "        Deletes the " << model_field->getName() << " text body on this " << this->name << "." << endl <<
-                "        \"\"\"" << endl <<
-                endl <<
-                "        del self.element.text" << endl <<
+                "    me.remove" << model_field->getName().toCamelCase() << " = function(){" << endl <<
+                "        return me.removeTextValue( '" << model_field->getName() << "' );" << endl <<
+                "    };" << endl <<
                 endl <<
                 endl <<
                 endl;
@@ -274,93 +215,58 @@ namespace modeler{
 
                 is_user_type = model_field->isUserType();
 
+
                 output_stream <<
-
-                "    @property" << endl <<
-                "    def " << model_field->getName() << "( self ):" << endl <<
-                "        \"\"\"" << endl <<
-                "        Gets the " << model_field->getName() << " subelement on this " << this->name << ".  Returns None if the subelement doesn't exist." << endl <<
-                "        @return {" << model_field->getType() << "}" << endl <<
-                "        \"\"\"" << endl <<
-                endl;
-
-                is_user_type = model_field->isUserType();
-
+                "    me.get" << model_field->getName().toCamelCase() << " = function(){" << endl;
                 if( is_user_type ){
-
-                    output_stream << "        from fd.model." << model_field->getType() << " import " << model_field->getType() << endl;
-                    output_stream << "        return " << model_field->getType() << "( xml_element = self.get_or_create_tag_by_name('" << model_field->getName() << "') )" << endl;
-
+                    output_stream << "        return " << model_field->getName() << ";" << endl;
                 }else{
-
-                    output_stream << "        return self.get_tag_value( '" << model_field->getName() << "' )" << endl;
-
+                    output_stream << "        return me.getChildTextValue( '" << model_field->getName() << "' );" << endl;
                 }
-
                 output_stream <<
+                "    };" << endl <<
                 endl <<
                 endl <<
-                endl <<
-
-
-
-
-
-
-                "    @" << model_field->getName() << ".setter" << endl <<
-                "    def " << model_field->getName() << "( self, " << model_field->getName() << " ):" << endl <<
-                "        \"\"\"" << endl <<
-                "        Sets the " << model_field->getName() << " subelement on this " << this->name << "." << endl <<
-                "        @param {" << model_field->getType() << "} " << model_field->getName() << endl <<
-                "        \"\"\"" << endl <<
                 endl;
 
+
+
+                output_stream <<
+                "    me.set" << model_field->getName().toCamelCase() << " = function( new_" << model_field->getName() << " ){" << endl;
                 if( is_user_type ){
-
-                    output_stream << "        from fd.model." << model_field->getType() << " import " << model_field->getType() << endl;
-                    output_stream << "        tag = self.get_tag_by_name( '" << model_field->getName() << "' )" << endl;
-
-                    output_stream << "        if isinstance( " << model_field->getName() << ", XmlModel ):" << endl << endl;
-                    output_stream << "            if tag is None: " << endl;
-                    output_stream << "                self.element.append( " << model_field->getName() << ".element )" << endl;
-                    output_stream << "            else: " << endl;
-                    output_stream << "                tag = " << model_field->getName() << ".element" << endl << endl;
-
-                    output_stream << "        elif isinstance( " << model_field->getName() << ", basestring ):" << endl << endl;
-                    output_stream << "            xml_model = " << model_field->getType() << "( xml_string = " << model_field->getName() << " )" << endl;
-                    output_stream << "            if tag is None: " << endl;
-                    output_stream << "                self.element.append( xml_model.element )" << endl;
-                    output_stream << "            else: " << endl;
-                    output_stream << "                tag = xml_model.element" << endl << endl;
-
-                    output_stream << "        else:" << endl << endl;
-                    output_stream << "            raise Exception( 'Unexpected type for " << this->name << "." << model_field->getName() << "' )" << endl;
-
+                    output_stream << "        " << model_field->getName() << " = new_" << model_field->getName() << ";" << endl;
                 }else{
-
-                    output_stream << "        self.set_tag_value( '" << model_field->getName() << "', " << model_field->getName() << " )" << endl;
-
+                    output_stream << "        return me.setChildTextValue( '" << model_field->getName() << "' );" << endl;
                 }
-
                 output_stream <<
-                endl <<
-                endl <<
-                endl <<
-
-
-                "    @" << model_field->getName() << ".deleter" << endl <<
-                "    def " << model_field->getName() << "( self ):" << endl <<
-                "        \"\"\"" << endl <<
-                "        Deletes the " << model_field->getName() << " subelement on this " << this->name << "." << endl <<
-                "        \"\"\"" << endl <<
-                endl <<
-                "        self.remove_tag( '" << model_field->getName() << "' )" << endl <<
+                "    };" << endl <<
                 endl <<
                 endl <<
                 endl;
+
+
+
+                output_stream <<
+                "    me.remove" << model_field->getName().toCamelCase() << " = function(){" << endl;
+                if( is_user_type ){
+                    output_stream << "        " << model_field->getName() << " = null;" << endl;
+                    output_stream << "        return me.removeChild( '" << model_field->getName() << "' );" << endl;
+                }else{
+                    output_stream << "        return me.removeChild( '" << model_field->getName() << "' );" << endl;
+                }
+                output_stream <<
+                "    };" << endl <<
+                endl <<
+                endl <<
+                endl;
+
 
             }
 
+        output_stream << endl <<
+        "    init();" << endl <<
+        endl <<
+        "};" << endl;
 
         return output_stream;
 
@@ -369,258 +275,13 @@ namespace modeler{
 
     std::ostream& Model::writeModelFile( std::ostream &output_stream ) const{
 
-        output_stream << endl << endl << endl <<
+        output_stream << endl <<
         endl <<
-        "from base.Base" << this->name << " import Base" << this->name << endl <<
+        this->name << " = function( data_reference ){" << endl <<
+        "    Base" << this->name << ".apply( this, arguments );" << endl <<
         endl <<
-        "class " << this->name << "( Base" << this->name << " ):" << endl <<
-        endl <<
-        "    pass" << endl;
-
-        return output_stream;
-
-    }
-
-
-    std::ostream& Model::writeBaseSetFile( std::ostream &output_stream ) const{
-
-        ModelFieldMap::const_iterator it;
-        ModelField *model_field;
-        bool is_user_type;
-
-        output_stream <<
-        endl <<
-        "import collections" << endl <<
-        endl <<
-        "from lxml.etree import XML, tostring, parse, Element, XMLParser" << endl <<
-        "from fd.model.xml_model import XmlModel" << endl <<
-        endl <<
-        endl <<
-        "class Base" << this->name << "Set( collections.MutableSet, XmlModel ):" << endl <<
-        endl <<
-        endl <<
-        "    def __init__( self, xml_element = None, filename = None, xml_string = None, initvalue = () ):" << endl <<
-        endl <<
-        "        XmlModel.__init__( self, xml_element = xml_element, filename = filename, xml_string = xml_string )" << endl <<
-        endl <<
-        "        self.object_set = set()" << endl <<
-        "        self.name_set = set()" << endl <<
-        endl <<
-        "        if self.element is None:" << endl <<
-        "            self.element = self.create_default_element()" << endl <<
-        "            for value in initvalue:" << endl <<
-        "                self.add( value )" << endl <<
-        endl <<
-        "        else:" << endl <<
-        "            self.reindex()" << endl <<
-        endl <<
-        endl <<
-        endl <<
-        "    def reindex( self ):" << endl <<
-        endl <<
-        "        from fd.model." << this->name << " import " << this->name << endl <<
-        endl <<
-        "        self.object_set = set()" << endl <<
-        "        for item_element in self.element.iterchildren():" << endl <<
-        "            item = " << this->name << "( xml_element = item_element )" << endl <<
-        "            self.object_set.add( item )" << endl <<
-        "            self.name_set.add( item.name )" << endl <<
-        "            if hasattr( item, 'reindex' ):" << endl <<
-        "                item.reindex()" << endl <<
-        endl <<
-        endl <<
-        endl <<
-        "    def create_default_element( self ):" << endl <<
-        endl <<
-        "        element = Element( '" << this->name.toLowerCase() << "s' )" << endl <<
-        "        return element" << endl <<
-        endl <<
-        endl <<
-        endl <<
-        "    def add( self, item ):" << endl <<
-        endl <<
-        "        from fd.model." << this->name << " import " << this->name << endl <<
-        endl <<
-        "        if not isinstance( item, " << this->name << " ):" << endl <<
-        "            raise Exception( '" << this->name << "Set.add expects a " << this->name << ".' )" << endl <<
-        endl <<
-        "        item_name = item.name" << endl <<
-        "        if item_name is None:" << endl <<
-        "            raise Exception( '" << this->name << " must have a name.' )" << endl <<
-        endl <<
-        "        if item_name in self.name_set:" << endl <<
-        "            existing_element = self.get( item_name )" << endl <<
-        "            self.remove( existing_element )" << endl <<
-        endl <<
-        "        self.object_set.add( item )" << endl <<
-        "        self.name_set.add( item_name )" << endl <<
-        "        self.element.append( item.element )" << endl <<
-        endl <<
-        endl <<
-        endl <<
-        "    def get( self, item_name ):" << endl <<
-        endl <<
-        "        if not isinstance( item_name, basestring ):" << endl <<
-        "            raise Exception( '" << this->name << "Set.get expects a basestring.' )" << endl <<
-        endl <<
-        "        if item_name in self.name_set:" << endl <<
-        "            for item in self.object_set:" << endl <<
-        "                if item.name == item_name:" << endl <<
-        "                    return item" << endl <<
-        endl <<
-        "        return None" << endl <<
-        endl <<
-        endl <<
-        endl <<
-        "    def discard( self, item ):" << endl <<
-        endl <<
-        "        from fd.model." << this->name << " import " << this->name << endl <<
-        endl <<
-        "        if not isinstance( item, " << this->name << " ):" << endl <<
-        "            raise Exception( '" << this->name << "Set.discard expects a " << this->name << ".' )" << endl <<
-        endl <<
-        "        item_name = item.name" << endl <<
-        "        if item_name is None:" << endl <<
-        "            raise Exception( '" << this->name << " must have a name.' )" << endl <<
-        endl <<
-        "        if item_name in self.name_set:" << endl <<
-        "            self.element.remove( item.element )" << endl <<
-        "            self.object_set.discard( item )" << endl <<
-        "            self.name_set.discard( item_name )" << endl <<
-        endl <<
-        endl <<
-        endl <<
-        "    @property" << endl <<
-        "    def names( self ):" << endl <<
-        endl <<
-        "        temp_list = list( self.name_set )" << endl <<
-        "        temp_list.sort()" << endl <<
-        "        return temp_list" << endl <<
-        endl <<
-        endl <<
-        endl <<
-        "    def __iter__( self ):" << endl <<
-        endl <<
-        "        return iter( self.object_set )" << endl <<
-        endl <<
-        endl <<
-        endl <<
-        "    def __len__( self ):" << endl <<
-        endl <<
-        "        return len( self.object_set )" << endl <<
-        endl <<
-        endl <<
-        endl <<
-        "    def __contains__( self, item ):" << endl <<
-        endl <<
-        "        try:" << endl <<
-        endl <<
-        "            if isinstance( item, basestring ):" << endl <<
-        "                return item in self.name_set" << endl <<
-        endl <<
-        "            from fd.model." << this->name << " import " << this->name << endl <<
-        endl <<
-        "            if not isinstance( item, " << this->name << " ):" << endl <<
-        "                raise Exception( '" << this->name << "Set.__contains__ expects a " << this->name << ".' )" << endl <<
-        endl <<
-        "            item_name = item.name" << endl <<
-        "            if item_name is None:" << endl <<
-        "                raise Exception( '" << this->name << " must have a name.' )" << endl <<
-        endl <<
-        "            return item_name in self.name_set" << endl <<
-        endl <<
-        "        except AttributeError:" << endl <<
-        endl <<
-        "            return False" << endl <<
-        endl <<
-        endl <<
-        endl <<
-        "    def as_dict( self ):" << endl <<
-        "        \"\"\"" << endl <<
-        "        Returns the lxml element converted to a json dict (a list of dicts)." << endl <<
-        "        Requires \"pip install xmltodict\"" << endl << endl <<
-        "        See: https://github.com/martinblech/xmltodict" << endl <<
-        "        :return: list" << endl <<
-        "        \"\"\"" << endl << endl <<
-        "        import xmltodict" << endl << endl <<
-        "        results = []" << endl <<
-        "        for sub_object in self.object_set:" << endl <<
-        "            results.append( sub_object.as_dict() )" << endl <<
-        endl <<
-        "        return results" << endl <<
-        endl <<
-        endl <<
-        endl <<
-        "    def as_json_string( self ):" << endl <<
-        "        \"\"\"" << endl <<
-        "        Returns the lxml element converted to a json string." << endl <<
-        "        Requires \"pip install xmltodict\"" << endl << endl <<
-        "        See: https://github.com/martinblech/xmltodict" << endl <<
-        "        :return: string" << endl <<
-        "        \"\"\"" << endl << endl <<
-        "        import json" << endl << endl <<
-        "        return json.dumps( self.as_dict() )" << endl <<
-
-        endl <<
-        endl <<
-        endl;
-
-
-
-        // all of the find_by methods for each of the fields except "name"
-
-        for( it = this->fields.begin(); it != this->fields.end(); it++ ){
-
-            model_field = it->second;
-
-            if( model_field->getType() == "attribute" && model_field->getName() == "name" ){
-                //skip the name field
-                continue;
-            }
-
-            //find_by methods don't make sense for user types
-                is_user_type = model_field->isUserType();
-                if( is_user_type ){
-                    continue;
-                }
-
-
-            output_stream <<
-
-            "    def find_by_" << model_field->getName() << "( self, " << model_field->getName() << " ):" << endl <<
-            "        \"\"\"" << endl <<
-            "        Returns a list of " << this->getName() << " models objects from this set.  Returns an empty list if none were found." << endl <<
-            "        @return {list}" << endl <<
-            "        \"\"\"" << endl <<
-            endl <<
-            "        found = list()" << endl <<
-            "        for item in self.object_set:" << endl <<
-            "            if item." << model_field->getName() << " == " << model_field->getName() << ":" << endl <<
-            "                found.append( item )" << endl <<
-            endl <<
-            "        return found" << endl <<
-            endl <<
-            endl <<
-            endl;
-
-        }
-
-
-
-        return output_stream;
-
-    }
-
-
-    std::ostream& Model::writeSetFile( std::ostream &output_stream ) const{
-
-        output_stream << endl << endl << endl <<
-        endl <<
-        "from base.Base" << this->name << "Set import Base" << this->name << "Set" << endl <<
-        endl <<
-        "class " << this->name << "Set( Base" << this->name << "Set ):" << endl <<
-        endl <<
-        "    pass" << endl;
+        "    var me = this;" << endl << endl <<
+        "};" << endl;
 
         return output_stream;
 
@@ -633,158 +294,168 @@ namespace modeler{
         ModelField *model_field;
         bool is_user_type;
 
-        output_stream <<
+        output_stream << endl <<
         endl <<
-        "from lxml.etree import XML, tostring, parse, Element, XMLParser" << endl <<
-        "from fd.model.xml_model import XmlModel" << endl <<
+        "Base" << this->name << "List = function( data_reference ){" << endl <<
+        "    XmlModel.apply( this, arguments );" << endl <<
         endl <<
-        "from fd.model." << this->name << " import " << this->name << endl <<
+        "    var me = this;" << endl <<
+        "    var list_members = [];" << endl << endl;
+
+
+
+        output_stream << endl << endl << endl <<
+
+
+
+        "    var init = function(){" << endl <<
+        endl <<
+        "        var list_children = me.getChildrenByTag( '" << this->name.toLowerCase() << "' );" << endl <<
+        endl <<
+        "        for( var i in list_children ){" << endl <<
+        endl <<
+        "            list_members.push( new " << this->name << "(list_children[i]) );" << endl <<
+        endl <<
+        "        }" << endl <<
+        endl <<
+        "    };" << endl <<
         endl <<
         endl <<
-        "class Base" << this->name << "List( list, XmlModel ):" << endl <<
+
+
+
+        "    me.getAll = function(){" << endl <<
         endl <<
+        "        return list_members;" << endl <<
         endl <<
-        "    def __init__( self, xml_element = None, filename = None, xml_string = None, initvalue = () ):" << endl <<
-        endl <<
-        "        XmlModel.__init__( self, xml_element = xml_element, filename = filename, xml_string = xml_string )" << endl <<
-        endl <<
-        "        self.object_list = list()" << endl <<
-        endl <<
-        "        for value in initvalue:" << endl <<
-        "            self.append( value )" << endl <<
-        endl <<
-        "        if self.element is None:" << endl <<
-        "            self.element = self.create_default_element()" << endl <<
-        "        else:" << endl <<
-        "            self.reindex()" << endl <<
-        endl <<
-        endl <<
-        endl <<
-        "    def reindex( self ):" << endl <<
-        endl <<
-        "        from fd.model." << this->name << " import " << this->name << endl <<
-        endl <<
-        "        self.object_list = list()" << endl <<
-        "        for item_element in self.element.iterchildren():" << endl <<
-        "            item = " << this->name << "( xml_element = item_element )" << endl <<
-        "            self.object_list.append( item )" << endl <<
-        "            if hasattr( item, 'reindex' ):" << endl <<
-        "                item.reindex()" << endl <<
+        "    };" << endl <<
         endl <<
         endl <<
         endl <<
-        "    def create_default_element( self ):" << endl <<
+
+
+
+        "    me.prepend = function( " << this->name.toLowerCase() << " ){" << endl <<
         endl <<
-        "        element = Element( '" << this->name.toLowerCase() << "s' )" << endl <<
-        "        return element" << endl <<
+        "        list_members.unshift( " << this->name.toLowerCase() << " );" << endl <<
+        "        return me;" << endl <<
         endl <<
-        endl <<
-        endl <<
-        "    def append( self, item ):" << endl <<
-        endl <<
-        "        if not isinstance( item, " << this->name << " ):" << endl <<
-        "            raise Exception( '" << this->name << "List.add expects a " << this->name << ".' )" << endl <<
-        endl <<
-        "        self.object_list.append( item )" << endl <<
-        "        self.element.append( item.element )" << endl <<
+        "    };" << endl <<
         endl <<
         endl <<
         endl <<
-        "    def remove( self, item_index ):" << endl <<
+
+
+
+        "    me.append = function( " << this->name.toLowerCase() << " ){" << endl <<
         endl <<
-        "        item_element = self.element.index( item_index )" << endl <<
-        "        if item_element:" << endl <<
-        "            self.element.remove( item_element )" << endl <<
-        "            self.object_list.remove( item_index )" << endl <<
+        "        list_members.push( " << this->name.toLowerCase() << " );" << endl <<
+        "        return me;" << endl <<
         endl <<
-        endl <<
-        endl <<
-        "    def __iter__( self ):" << endl <<
-        endl <<
-        "        return iter( self.object_list )" << endl <<
+        "    };" << endl <<
         endl <<
         endl <<
         endl <<
-        "    def __getitem__( self, item ):" << endl <<
+
+
+
+        "    me.getByIndex = function( index ){" << endl <<
         endl <<
-        "        return self.object_list[ item ]" << endl <<
+        "        if( index >= list_members.length || index < 0 ){" << endl <<
         endl <<
+        "            throw \"Out of bounds for getByIndex\";" << endl <<
         endl <<
+        "        }" << endl <<
         endl <<
-        "    def __len__( self ):" << endl <<
+        "        return list_members[ index ];" << endl <<
         endl <<
-        "        return len( self.object_list )" << endl <<
-        endl <<
-        endl <<
-        endl <<
-        "    def as_dict( self ):" << endl <<
-        "        \"\"\"" << endl <<
-        "        Returns the lxml element converted to a json dict (a list of dicts)." << endl <<
-        "        Requires \"pip install xmltodict\"" << endl << endl <<
-        "        See: https://github.com/martinblech/xmltodict" << endl <<
-        "        :return: list" << endl <<
-        "        \"\"\"" << endl << endl <<
-        "        import xmltodict" << endl << endl <<
-        "        results = []" << endl <<
-        "        for sub_object in self.object_list:" << endl <<
-        "            results.append( sub_object.as_dict() )" << endl <<
-        endl <<
-        "        return results" << endl <<
+        "    };" << endl <<
         endl <<
         endl <<
         endl <<
-        "    def as_json_string( self ):" << endl <<
-        "        \"\"\"" << endl <<
-        "        Returns the lxml element converted to a json string." << endl <<
-        "        Requires \"pip install xmltodict\"" << endl << endl <<
-        "        See: https://github.com/martinblech/xmltodict" << endl <<
-        "        :return: basestring" << endl <<
-        "        \"\"\"" << endl << endl <<
-        "        import json" << endl << endl <<
-        "        return json.dumps( self.as_dict() )" << endl <<
+
+
+
+        "    /**" << endl <<
+        "     * Calls \"callback\" once for each list member. It passes the member model as the first parameter" << endl <<
+        "     * and its index as the second parameter." << endl <<
+        "     * @param function callback( member, index )" << endl <<
+        "     * @returns void" << endl <<
+        "     */" << endl <<
+        "    me.forEach = function( callback ){" << endl <<
+        endl <<
+        "        if( typeof(callback) != 'function' ){" << endl <<
+        "            return false;" << endl <<
+        "        }" << endl <<
+        endl <<
+        "        for( var i in list_members ){" << endl <<
+        "            callback( list_members[i], i );" << endl <<
+        "        }" << endl <<
+        endl <<
+        "    };" << endl <<
         endl <<
         endl <<
         endl;
 
 
-        // all of the find_by methods for each of the fields except "name"
 
-        for( it = this->fields.begin(); it != this->fields.end(); it++ ){
+        // find_by-like functions for each of the accessors
 
-            model_field = it->second;
+            for( it = this->fields.begin(); it != this->fields.end(); it++ ){
 
-            if( model_field->getType() == "attribute" && model_field->getName() == "name" ){
-                //skip the name field
-                continue;
+                model_field = it->second;
+
+                //find_by methods don't make sense for user types
+                    is_user_type = model_field->isUserType();
+                    if( is_user_type ){
+                        continue;
+                    }
+
+                output_stream <<
+
+
+                "    me.findBy" << model_field->getName().toCamelCase() << " = function( " << model_field->getName() << " ){" << endl <<
+                endl <<
+                "        var results = [];" << endl <<
+                "        for( var i in list_children ){" << endl <<
+                "            if( list_children[i].get" << model_field->getName().toCamelCase() << "() == " << model_field->getName() << " ){" << endl <<
+                "                results.push( list_children[i] );" << endl <<
+                "            }" << endl <<
+                "        }" << endl <<
+                "        return results;" << endl <<
+                endl <<
+                "    };" << endl <<
+                endl <<
+                endl <<
+                endl <<
+
+
+                "    me.removeBy" << model_field->getName().toCamelCase() << " = function( " << model_field->getName() << " ){" << endl <<
+                endl <<
+                "        var new_array = [];" << endl <<
+                "        for( var i in list_children ){" << endl <<
+                "            if( list_children[i].get" << model_field->getName().toCamelCase() << "() != " << model_field->getName() << " ){" << endl <<
+                "                new_array.push( list_children[i] );" << endl <<
+                "            }" << endl <<
+                "        }" << endl <<
+                "        list_children = new_array;" << endl <<
+                "        return me;" << endl <<
+                endl <<
+                "    };" << endl <<
+                endl <<
+                endl <<
+                endl;
+
+
             }
 
-            //find_by methods don't make sense for user types
-                is_user_type = model_field->isUserType();
-                if( is_user_type ){
-                    continue;
-                }
-
-            output_stream <<
-
-            "    def find_by_" << model_field->getName() << "( self, " << model_field->getName() << " ):" << endl <<
-            "        \"\"\"" << endl <<
-            "        Returns a list of " << this->getName() << " models objects from this list.  Returns an empty list if none were found." << endl <<
-            "        @return {list}" << endl <<
-            "        \"\"\"" << endl <<
-            endl <<
-            "        found = list()" << endl <<
-            "        for item in self.object_list:" << endl <<
-            "            if item." << model_field->getName() << " == " << model_field->getName() << ":" << endl <<
-            "                found.append( item )" << endl <<
-            endl <<
-            "        return found" << endl <<
-            endl <<
-            endl <<
-            endl;
-
-        }
 
 
+
+        output_stream << endl <<
+        "    init();" << endl <<
+        endl <<
+        "};" << endl;
 
         return output_stream;
 
@@ -793,13 +464,13 @@ namespace modeler{
 
     std::ostream& Model::writeListFile( std::ostream &output_stream ) const{
 
-        output_stream << endl << endl << endl <<
+        output_stream << endl <<
         endl <<
-        "from base.Base" << this->name << "List import Base" << this->name << "List" << endl <<
+        this->name << "List = function( data_reference ){" << endl <<
+        "    Base" << this->name << "List.apply( this, arguments );" << endl <<
         endl <<
-        "class " << this->name << "List( Base" << this->name << "List ):" << endl <<
-        endl <<
-        "    pass" << endl;
+        "    var me = this;" << endl << endl <<
+        "};" << endl;
 
         return output_stream;
 
