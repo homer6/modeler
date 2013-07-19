@@ -399,7 +399,7 @@ namespace modeler{
         endl <<
         endl <<
         endl <<
-        "    me._list_node_name = '" << this->name.toLowerCase() << "';" << endl <<
+        "    me._list_node_name = '" << this->name.toUnderscoreCase() << "';" << endl <<
         endl <<
         endl <<
         endl <<

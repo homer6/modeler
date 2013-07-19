@@ -28,6 +28,14 @@ XmlModel = function( data_reference ){
 
 
 
+	me.getDataReference = function(){
+        
+        return data_reference;
+        
+    };
+
+
+	
     /**
      * Returns a (reference) object to the attribute with a name matching attribute_name
      *
