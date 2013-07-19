@@ -96,13 +96,21 @@ namespace modeler{
         output_stream << endl <<
         endl <<
         "Base" << this->name << " = function( data_reference ){" << endl <<
+        endl <<
+        endl <<
+        "    if( !this._class_name ){" << endl <<
+        "        this._class_name = 'Base" << this->name << "';" << endl <<
+        "    }" << endl <<
+        endl <<
+        endl <<
+        endl <<
         "    XmlModel.apply( this, arguments );" << endl <<
         endl <<
-        "    var me = this;" << endl << endl;
+        "    var me = this;" << endl <<
+        endl;
 
 
-
-        //initialize user types (to maintain a reference to them)
+        // initialize user types (to maintain a reference to them)
 
             for( it = this->fields.begin(); it != this->fields.end(); it++ ){
 
@@ -118,7 +126,57 @@ namespace modeler{
             }
 
 
+        // Add default list of user-typed child nodes so that they can be overridden by the user-editable model
+
+            output_stream << endl << endl <<
+            "    me._child_node_names = {" << endl;
+
+            vector<Utf8String> child_node_names;
+
+            for( it = this->fields.begin(); it != this->fields.end(); it++ ){
+
+                model_field = it->second;
+
+                if( model_field->getType() == "attribute" || model_field->getType() == "text_body" || !model_field->isUserType() ){
+                    continue;
+                }
+
+                child_node_names.push_back( "        " + model_field->getName() + ": '" + model_field->getName() + "'" );
+
+            }
+
+            output_stream << Utf8String(",\n").join( child_node_names ) << endl <<
+            "    };" << endl;
+
+
+
         output_stream << endl << endl << endl;
+
+        // call to initialization function
+            output_stream <<
+            "    me._Base" << this->name << " = function(){" << endl <<
+            endl <<
+            "        me._XmlModel.apply( this, arguments );" << endl <<
+            endl << endl;
+
+            // Hydrate user-typed members
+
+                for( it = this->fields.begin(); it != this->fields.end(); it++ ){
+
+                    model_field = it->second;
+
+                    if( model_field->getType() == "attribute" || model_field->getType() == "text_body" || !model_field->isUserType() ){
+                        continue;
+                    }
+
+                    output_stream <<
+                    "        me.set" << model_field->getName().toCamelCase() << "( new " << model_field->getType() << "(me.getChild(me._child_node_names." << model_field->getName() << ")) );" << endl;
+
+                }
+
+            output_stream << endl <<
+            "    };"
+            << endl << endl << endl;
 
 
         // the getter, setter and deleter for each of the attributes
@@ -263,8 +321,10 @@ namespace modeler{
 
             }
 
-        output_stream << endl <<
-        "    init();" << endl <<
+        output_stream <<
+        "    if( me._class_name == 'Base" << this->name << "' ){" << endl <<
+        "        me._Base" << this->name << "();" << endl <<
+        "    }" << endl <<
         endl <<
         "};" << endl;
 
@@ -278,10 +338,36 @@ namespace modeler{
         output_stream << endl <<
         endl <<
         this->name << " = function( data_reference ){" << endl <<
+        endl <<
+        endl <<
+        "    if( !this._class_name ){" << endl <<
+        "        this._class_name = '" << this->name << "';" << endl <<
+        "    }" << endl <<
+        endl <<
+        endl <<
+        endl <<
         "    Base" << this->name << ".apply( this, arguments );" << endl <<
         endl <<
-        "    var me = this;" << endl << endl <<
+        "    var me = this;" << endl <<
+        endl << endl << endl;
+
+
+        output_stream <<
+        "    me._" << this->name << " = function(){" << endl <<
+        endl <<
+        "        me._Base" << this->name << ".apply( this, arguments );" << endl <<
+        endl <<
+        "    };"
+        << endl << endl << endl;
+
+
+        output_stream << endl <<
+        "    if( me._class_name == '" << this->name << "' ){" << endl <<
+        "        me._" << this->name << "();" << endl <<
+        "    }" << endl <<
+        endl <<
         "};" << endl;
+
 
         return output_stream;
 
@@ -297,33 +383,38 @@ namespace modeler{
         output_stream << endl <<
         endl <<
         "Base" << this->name << "List = function( data_reference ){" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    if( !this._class_name ){" << endl <<
+        "        this._class_name = 'Base" << this->name << "List';" << endl <<
+        "    }" << endl <<
+        endl <<
+        endl <<
+        endl <<
         "    XmlModel.apply( this, arguments );" << endl <<
         endl <<
         "    var me = this;" << endl <<
-        "    var list_members = [];" << endl << endl;
-
+        "    var list_members = [];" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    me._list_node_name = '" << this->name.toLowerCase() << "';" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    me._Base" << this->name << "List = function(){" << endl <<
+        "        me._XmlModel.apply( this, arguments );" << endl <<
+        endl <<
+        "        var list_children = me.getChildrenByTag( me._list_node_name );" << endl <<
+        endl <<
+        "        for( var i in list_children ){" << endl <<
+        "            list_members.push( new " << this->name << "(list_children[i]) );" << endl <<
+        "        }" << endl <<
+        "    };" << endl;
 
 
         output_stream << endl << endl << endl <<
-
-
-
-        "    var init = function(){" << endl <<
-        endl <<
-        "        var list_children = me.getChildrenByTag( '" << this->name.toLowerCase() << "' );" << endl <<
-        endl <<
-        "        for( var i in list_children ){" << endl <<
-        endl <<
-        "            list_members.push( new " << this->name << "(list_children[i]) );" << endl <<
-        endl <<
-        "        }" << endl <<
-        endl <<
-        "    };" << endl <<
-        endl <<
-        endl <<
-
-
-
         "    me.getAll = function(){" << endl <<
         endl <<
         "        return list_members;" << endl <<
@@ -453,7 +544,9 @@ namespace modeler{
 
 
         output_stream << endl <<
-        "    init();" << endl <<
+        "    if( me._class_name == 'Base" << this->name << "List' ){" << endl <<
+        "        me._Base" << this->name << "List();" <<  endl <<
+        "    }" << endl <<
         endl <<
         "};" << endl;
 
@@ -467,9 +560,30 @@ namespace modeler{
         output_stream << endl <<
         endl <<
         this->name << "List = function( data_reference ){" << endl <<
+        endl <<
+        endl <<
+        "    if( !this._class_name ){" << endl <<
+        "        this._class_name = '" << this->name << "List';" << endl <<
+        "    }" << endl <<
+        endl <<
+        endl <<
+        endl <<
         "    Base" << this->name << "List.apply( this, arguments );" << endl <<
         endl <<
-        "    var me = this;" << endl << endl <<
+        "    var me = this;" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    me._" << this->name << "List = function(){" << endl <<
+        "        me._Base" << this->name << "List.apply( this, arguments );" << endl <<
+        "    };" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    if( me._class_name == '" << this->name << "List' ){" << endl <<
+        "        me._" << this->name << "List();" << endl <<
+        "    }" << endl <<
+        endl <<
         "};" << endl;
 
         return output_stream;

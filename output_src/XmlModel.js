@@ -1,9 +1,31 @@
+
+
 XmlModel = function( data_reference ){
+
+
+    if( !this._class_name ){
+        this._class_name = 'XmlModel';
+    }
+
+
+    if( !data_reference ){
+        data_reference = {};
+    }
+
 
     var me = this;
 
-    var init = function(){
+
+
+    me._XmlModel = function(){
+
+        if( !data_reference || typeof(data_reference) != 'object' ){
+            console.log( "-> Unable to hydrate " + (me._class_name || 'XmlModel') + " from non-object" );
+            return;
+        }
+
     };
+
 
 
     /**
@@ -31,6 +53,7 @@ XmlModel = function( data_reference ){
     };
 
 
+
     /**
      * Returns a the value of an attribute with a name matching attribute_name
      *
@@ -48,6 +71,7 @@ XmlModel = function( data_reference ){
         return false;
 
     };
+
 
 
     /**
@@ -80,6 +104,7 @@ XmlModel = function( data_reference ){
     };
 
 
+
     /**
      * Removes an attribute by name.
      *
@@ -105,6 +130,7 @@ XmlModel = function( data_reference ){
         return me;
 
     };
+
 
 
     /**
@@ -133,6 +159,7 @@ XmlModel = function( data_reference ){
     };
 
 
+
     /**
      * Returns the value of a text child or null if it doesn't exist or if it is not a text child.
      *
@@ -150,6 +177,7 @@ XmlModel = function( data_reference ){
         return null;
 
     };
+
 
 
     /**
@@ -183,6 +211,7 @@ XmlModel = function( data_reference ){
     };
 
 
+
     /**
      * Removes a child by tag.
      *
@@ -208,6 +237,7 @@ XmlModel = function( data_reference ){
         return me;
 
     };
+
 
 
     /**
@@ -239,6 +269,7 @@ XmlModel = function( data_reference ){
     };
 
 
+
     /**
      * Get the text value of this object.
      *
@@ -255,6 +286,7 @@ XmlModel = function( data_reference ){
     };
 
 
+
     /**
      * Set the text value of this object.
      *
@@ -268,6 +300,8 @@ XmlModel = function( data_reference ){
         return me;
 
     };
+
+
 
     /**
      * Remove the text value of this object.
@@ -283,6 +317,8 @@ XmlModel = function( data_reference ){
     };
 
 
-    init();
+    if( me._class_name == 'XmlModel' ){
+        me._XmlModel();
+    }
 
 };
