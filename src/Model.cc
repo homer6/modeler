@@ -276,7 +276,7 @@ namespace modeler{
                 "        Determins if the " << model_field->getName() << " text body on this " << this->name << " exists (without modifying the object)." << endl <<
                 "        \"\"\"" << endl <<
                 endl <<
-                "        if self.element.text and len(self.element.text) > 0 " << endl <<
+                "        if self.element.text and len(self.element.text) > 0:" << endl <<
                 "            return True" << endl <<
                 "        return False" << endl <<
                 endl <<
