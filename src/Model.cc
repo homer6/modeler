@@ -182,6 +182,19 @@ namespace modeler{
                 "        self.remove_attribute( '" << model_field->getName() << "' )" << endl <<
                 endl <<
                 endl <<
+                endl <<
+
+
+                "    def has_" << model_field->getName() << "( self ):" << endl <<
+                "        \"\"\"" << endl <<
+                "        Determins if the " << model_field->getName() << " attribute on this " << this->name << " exists (without modifying the object)." << endl <<
+                "        \"\"\"" << endl <<
+                endl <<
+                "        if '" << model_field->getName() << "' in self.element.attrib:" << endl <<
+                "            return True" << endl <<
+                "        return False" << endl <<
+                endl <<
+                endl <<
                 endl;
 
 
@@ -253,6 +266,19 @@ namespace modeler{
                 "        \"\"\"" << endl <<
                 endl <<
                 "        del self.element.text" << endl <<
+                endl <<
+                endl <<
+                endl <<
+
+
+                "    def has_" << model_field->getName() << "( self ):" << endl <<
+                "        \"\"\"" << endl <<
+                "        Determins if the " << model_field->getName() << " text body on this " << this->name << " exists (without modifying the object)." << endl <<
+                "        \"\"\"" << endl <<
+                endl <<
+                "        if self.element.text and len(self.element.text) > 0 " << endl <<
+                "            return True" << endl <<
+                "        return False" << endl <<
                 endl <<
                 endl <<
                 endl;
@@ -355,6 +381,21 @@ namespace modeler{
                 "        \"\"\"" << endl <<
                 endl <<
                 "        self.remove_tag( '" << model_field->getName() << "' )" << endl <<
+                endl <<
+                endl <<
+                endl <<
+
+
+                "    def has_" << model_field->getName() << "( self ):" << endl <<
+                "        \"\"\"" << endl <<
+                "        Determins if the " << model_field->getName() << " field on this " << this->name << " exists (without modifying the object)." << endl <<
+                "        \"\"\"" << endl <<
+                endl <<
+                "        tag_element = self.element.find( '" << model_field->getName() << "' )" << endl <<
+                endl <<
+                "        if tag_element is None:" << endl <<
+                "            return False" << endl <<
+                "        return True" << endl <<
                 endl <<
                 endl <<
                 endl;
