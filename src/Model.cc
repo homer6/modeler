@@ -724,19 +724,29 @@ namespace modeler{
         "    def append( self, item ):" << endl <<
         endl <<
         "        if not isinstance( item, " << this->name << " ):" << endl <<
-        "            raise Exception( '" << this->name << "List.add expects a " << this->name << ".' )" << endl <<
+        "            raise Exception( '" << this->name << "List.append expects a " << this->name << ".' )" << endl <<
         endl <<
         "        self.object_list.append( item )" << endl <<
         "        self.element.append( item.element )" << endl <<
         endl <<
         endl <<
         endl <<
-        "    def remove( self, item_index ):" << endl <<
+        "    def remove( self, item ):" << endl <<
         endl <<
-        "        item_element = self.element.index( item_index )" << endl <<
-        "        if item_element:" << endl <<
-        "            self.element.remove( item_element )" << endl <<
-        "            self.object_list.remove( item_index )" << endl <<
+        "        if not isinstance( item, " << this->name << " ):" << endl <<
+        "            raise Exception( '" << this->name << "List.remove expects a " << this->name << ".' )" << endl <<
+        "        item_index = self.element.index( item.element )" << endl <<
+        "        if item_index >= 0: " << endl <<
+        "            self.element.remove( item.element )" << endl <<
+        "            del self.object_list[ item_index ]" << endl <<
+        endl <<
+        endl <<
+        endl <<
+        "    def pop( self, item_index = -1 ):" << endl <<
+        endl <<
+        "        removed_model = self.object_list.pop( item_index )" << endl <<
+        "        self.element.remove( removed_model.element )" << endl <<
+        "        return removed_model" << endl <<
         endl <<
         endl <<
         endl <<
