@@ -462,7 +462,7 @@ namespace modeler{
         "        from fd.model." << this->name << " import " << this->name << endl <<
         endl <<
         "        self.object_set = set()" << endl <<
-        "        for item_element in self.element.iterchildren():" << endl <<
+        "        for item_element in self.element.iterchildren( tag = Element ):" << endl <<
         "            item = " << this->name << "( xml_element = item_element )" << endl <<
         "            self.object_set.add( item )" << endl <<
         "            self.name_set.add( item.name )" << endl <<
@@ -706,7 +706,7 @@ namespace modeler{
         "        from fd.model." << this->name << " import " << this->name << endl <<
         endl <<
         "        self.object_list = list()" << endl <<
-        "        for item_element in self.element.iterchildren():" << endl <<
+        "        for item_element in self.element.iterchildren( tag = Element ):" << endl <<
         "            item = " << this->name << "( xml_element = item_element )" << endl <<
         "            self.object_list.append( item )" << endl <<
         "            if hasattr( item, 'reindex' ):" << endl <<
