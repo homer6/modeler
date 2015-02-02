@@ -23,7 +23,7 @@ Download and Install
     cmake .
     make
 
-    sudo ln -s `pwd`/build/jm /usr/bin/jm
+    sudo ln -fs `pwd`/build/jm /usr/bin/jm
 
 
 
